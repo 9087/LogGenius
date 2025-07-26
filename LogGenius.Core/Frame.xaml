@@ -1,0 +1,97 @@
+﻿<ResourceDictionary
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:modernwpf="http://schemas.modernwpf.com/2019"
+  xmlns:sys="clr-namespace:System;assembly=mscorlib"
+  xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
+  xmlns:LogGenius.Core="clr-namespace:LogGenius.Core"
+  >
+  <Style TargetType="Menu" BasedOn="{StaticResource DefaultMenuStyle}">
+    <Setter Property="Height" Value="{DynamicResource {x:Static modernwpf:TitleBar.HeightKey}}" />
+  </Style>
+  <Style TargetType="MenuItem" BasedOn="{StaticResource DefaultMenuItemStyle}">
+    <Style.Triggers>
+      <Trigger Property="Role" Value="TopLevelHeader">
+        <Setter Property="Height" Value="{DynamicResource {x:Static modernwpf:TitleBar.HeightKey}}" />
+        <Setter Property="FontSize" Value="13"/>
+      </Trigger>
+      <Trigger Property="Role" Value="TopLevelItem">
+        <Setter Property="Height" Value="{DynamicResource {x:Static modernwpf:TitleBar.HeightKey}}" />
+        <Setter Property="FontSize" Value="13"/>
+      </Trigger>
+    </Style.Triggers>
+  </Style>
+  <Style TargetType="LogGenius.Core:Frame">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="LogGenius.Core:Frame">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="1*"/>
+            </Grid.RowDefinitions>
+            <Grid
+              x:Name="PART_TitleBar"
+              Grid.Row="0"
+              Background="{DynamicResource SystemControlBackgroundChromeBlackMediumLowBrush}">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="1*"/>
+              </Grid.ColumnDefinitions>
+              <Grid
+                Grid.Column="0">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+                <Menu
+                  x:Name="PART_Menu"
+                  Grid.Column="0"
+                  WindowChrome.IsHitTestVisibleInChrome="True">
+                  <MenuItem Header="File">
+                    <MenuItem Header="Open..." Command="{Binding Source ={x:Static LogGenius.Core:Manager.Instance}, Path=Session.OpenFileFromDialogCommand}"/>
+                    <MenuItem Header="Close File" Command="{Binding Source ={x:Static LogGenius.Core:Manager.Instance}, Path=Session.CloseFileCommand}"/>
+                    <Separator/>
+                    <MenuItem
+                      Header="Recent Files"
+                      ItemsSource="{Binding Source={x:Static LogGenius.Core:CoreModule.Instance}, Path=RecentFiles}"
+                      >
+                      <MenuItem.ItemContainerStyle>
+                        <Style TargetType="MenuItem" BasedOn="{StaticResource DefaultMenuItemStyle}">
+                          <Setter Property="Command" Value="{Binding Source ={x:Static LogGenius.Core:Manager.Instance}, Path=Session.OpenFileCommand}"/>
+                          <Setter Property="CommandParameter" Value="{Binding}"/>
+                        </Style>
+                      </MenuItem.ItemContainerStyle>
+                    </MenuItem>
+                    <Separator/>
+                    <MenuItem Header="Exit" Command="{Binding Source ={x:Static LogGenius.Core:Manager.Instance}, Path=ShutdownCommand}"/>
+                  </MenuItem>
+                  <MenuItem
+                    Header="Window"
+                    ItemsSource="{Binding Source={x:Static LogGenius.Core:Manager.Instance}, Path=WindowItems}">
+                    <MenuItem.ItemContainerStyle>
+                      <Style TargetType="MenuItem" BasedOn="{StaticResource DefaultMenuItemStyle}">
+                        <Setter Property="IsCheckable" Value="True"/>
+                        <Setter Property="Header" Value="{Binding MenuTitle}"/>
+                        <Setter Property="IsChecked" Value="{Binding IsOpened, Mode=OneWay}"/>
+                        <Setter Property="Command" Value="{Binding OpenWindowCommand}"/>
+                      </Style>
+                    </MenuItem.ItemContainerStyle>
+                  </MenuItem>
+                </Menu>
+              </Grid>
+            </Grid>
+            <ContentControl Grid.Row="1" Content="{TemplateBinding Content}"/>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="WindowActive" Value="False">
+              <Setter TargetName="PART_TitleBar" Property="Background" Value="{DynamicResource SystemControlBackgroundAltHighBrush}"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+</ResourceDictionary>

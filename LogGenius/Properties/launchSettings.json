@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "LogGenius": {
+      "commandName": "Project",
+      "commandLineArgs": "\"C:/PROJECTS/UnrealEngine/Game/Saved/Logs/Game.log\""
+    }
+  }
+}

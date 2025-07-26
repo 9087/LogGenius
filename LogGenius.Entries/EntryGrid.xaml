@@ -1,0 +1,280 @@
+﻿<UserControl
+  x:Class="LogGenius.Modules.Entries.EntryGrid"
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:modernwpf="http://schemas.modernwpf.com/2019"
+  xmlns:LogGenius.Core="clr-namespace:LogGenius.Core;assembly=LogGenius.Core"
+  xmlns:LogGenius.Modules.Entries="clr-namespace:LogGenius.Modules.Entries"
+  mc:Ignorable="d"
+  d:DesignHeight="450" d:DesignWidth="800">
+  <UserControl.Resources>
+    <LogGenius.Modules.Entries:GetEntryStyleForegroundFromEntry x:Key="GetEntryStyleForegroundFromEntry"/>
+    <LogGenius.Modules.Entries:GetEntryStyleBackgroundFromEntry x:Key="GetEntryStyleBackgroundFromEntry"/>
+  </UserControl.Resources>
+  <DataGrid
+    x:Name="PART_DataGrid"
+    ItemsSource="{Binding}"
+    IsReadOnly="True"
+    AutoGenerateColumns="False"
+    SelectionMode="Extended"
+    MinRowHeight="0"
+    EnableRowVirtualization="True"
+    EnableColumnVirtualization="True"
+    VirtualizingPanel.ScrollUnit="Pixel"
+    VirtualizingPanel.VirtualizationMode="Recycling"
+    VirtualizingPanel.IsVirtualizing="True"
+    VirtualizingPanel.IsVirtualizingWhenGrouping="True"
+    SelectedCellsChanged="OnDataGridSelectedCellsChanged"
+    ScrollViewer.CanContentScroll="True"
+    CanUserResizeRows="false"
+    ScrollViewer.ScrollChanged="OnDataGridScrollChanged"
+    >
+    <DataGrid.RowStyle>
+      <Style TargetType="DataGridRow" BasedOn="{StaticResource DefaultDataGridRowStyle}">
+        <Setter Property="Header" Value="{Binding Line}"/>
+        <EventSetter Event="MouseDoubleClick" Handler="OnDataGridRowMouseDoubleClicked"/>
+        <Setter Property="Foreground">
+          <Setter.Value>
+            <MultiBinding Converter="{StaticResource GetEntryStyleForegroundFromEntry}">
+              <Binding/>
+              <Binding Path="EntryStyles" Source="{x:Static LogGenius.Modules.Entries:EntriesModule.Instance}"/>
+            </MultiBinding>
+          </Setter.Value>
+        </Setter>
+        <Setter Property="Background">
+          <Setter.Value>
+            <MultiBinding Converter="{StaticResource GetEntryStyleBackgroundFromEntry}">
+              <Binding/>
+              <Binding Path="EntryStyles" Source="{x:Static LogGenius.Modules.Entries:EntriesModule.Instance}"/>
+            </MultiBinding>
+          </Setter.Value>
+        </Setter>
+        <Setter Property="Template">
+          <Setter.Value>
+            <ControlTemplate TargetType="DataGridRow">
+              <Grid>
+                <VisualStateManager.VisualStateGroups>
+                  <VisualStateGroup x:Name="CommonStates">
+                    <modernwpf:VisualStateGroupListener.Listener>
+                      <modernwpf:VisualStateGroupListener x:Name="CommonStatesListener" />
+                    </modernwpf:VisualStateGroupListener.Listener>
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="Normal_AlternatingRow" />
+                    <VisualState x:Name="MouseOver" />
+                    <VisualState x:Name="Normal_Selected" />
+                    <VisualState x:Name="MouseOver_Selected" />
+                    <VisualState x:Name="MouseOver_Unfocused_Selected" />
+                    <VisualState x:Name="Unfocused_Selected" />
+                  </VisualStateGroup>
+                </VisualStateManager.VisualStateGroups>
+                <Border
+                  x:Name="DGR_Border"
+                  Background="{TemplateBinding Background}"
+                  BorderBrush="{TemplateBinding BorderBrush}"
+                  BorderThickness="{TemplateBinding BorderThickness}"
+                  SnapsToDevicePixels="True">
+                  <Grid>
+                    <Rectangle
+                      x:Name="BackgroundRectangle"
+                      Fill="Transparent"
+                      Stretch="Fill"/>
+                    <SelectiveScrollingGrid>
+                      <SelectiveScrollingGrid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                      </SelectiveScrollingGrid.ColumnDefinitions>
+                      <SelectiveScrollingGrid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                      </SelectiveScrollingGrid.RowDefinitions>
+                      <DataGridCellsPresenter
+                        x:Name="CellsPresenter"
+                        Grid.Column="1"
+                        ItemsPanel="{TemplateBinding ItemsPanel}"
+                        SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                      <Border
+                        Grid.Row="1"
+                        Grid.Column="1"
+                        Background="{DynamicResource DataGridDetailsPresenterBackgroundBrush}">
+                        <DataGridDetailsPresenter
+                          x:Name="DetailsPresenter"
+                          SelectiveScrollingGrid.SelectiveScrollingOrientation="{TemplateBinding modernwpf:DataGridRowHelper.AreRowDetailsFrozen, ConverterParameter={x:Static SelectiveScrollingOrientation.Vertical}, Converter={x:Static DataGrid.RowDetailsScrollingConverter}}"
+                          Visibility="{TemplateBinding DetailsVisibility}" />
+                      </Border>
+                      <DataGridRowHeader
+                        x:Name="RowHeader"
+                        Grid.RowSpan="2"
+                        SelectiveScrollingGrid.SelectiveScrollingOrientation="Vertical"
+                        Visibility="{TemplateBinding modernwpf:DataGridRowHelper.HeadersVisibility, ConverterParameter={x:Static DataGridHeadersVisibility.Row}, Converter={x:Static DataGrid.HeadersVisibilityConverter}}" />
+                    </SelectiveScrollingGrid>
+                  </Grid>
+                </Border>
+              </Grid>
+              <ControlTemplate.Triggers>
+                <Trigger SourceName="CommonStatesListener" Property="CurrentStateName" Value="MouseOver">
+                  <Setter TargetName="BackgroundRectangle" Property="Fill" Value="{DynamicResource SystemControlHighlightListLowBrush}" />
+                </Trigger>
+                <Trigger SourceName="CommonStatesListener" Property="CurrentStateName" Value="Normal_Selected">
+                  <Setter TargetName="BackgroundRectangle" Property="Fill" Value="{DynamicResource DataGridRowSelectedBackground}" />
+                  <Setter TargetName="BackgroundRectangle" Property="Opacity" Value="{DynamicResource DataGridRowSelectedBackgroundOpacity}" />
+                </Trigger>
+                <Trigger SourceName="CommonStatesListener" Property="CurrentStateName" Value="MouseOver_Selected">
+                  <Setter TargetName="BackgroundRectangle" Property="Fill" Value="{DynamicResource DataGridRowSelectedHoveredBackground}" />
+                  <Setter TargetName="BackgroundRectangle" Property="Opacity" Value="{DynamicResource DataGridRowSelectedHoveredBackgroundOpacity}" />
+                </Trigger>
+                <Trigger SourceName="CommonStatesListener" Property="CurrentStateName" Value="MouseOver_Unfocused_Selected">
+                  <Setter TargetName="BackgroundRectangle" Property="Fill" Value="{DynamicResource DataGridRowSelectedHoveredUnfocusedBackground}" />
+                  <Setter TargetName="BackgroundRectangle" Property="Opacity" Value="{DynamicResource DataGridRowSelectedHoveredUnfocusedBackgroundOpacity}" />
+                </Trigger>
+                <Trigger SourceName="CommonStatesListener" Property="CurrentStateName" Value="Unfocused_Selected">
+                  <Setter TargetName="BackgroundRectangle" Property="Fill" Value="{DynamicResource DataGridRowSelectedUnfocusedBackground}" />
+                  <Setter TargetName="BackgroundRectangle" Property="Opacity" Value="{DynamicResource DataGridRowSelectedUnfocusedBackgroundOpacity}" />
+                </Trigger>
+              </ControlTemplate.Triggers>
+            </ControlTemplate>
+          </Setter.Value>
+        </Setter>
+      </Style>
+    </DataGrid.RowStyle>
+    <DataGrid.RowHeaderStyle>
+      <Style TargetType="DataGridRowHeader" BasedOn="{StaticResource DefaultDataGridRowHeaderStyle}">
+        <Setter Property="FontSize" Value="{DynamicResource FontSize}"/>
+        <Setter Property="Foreground">
+          <Setter.Value>
+            <MultiBinding Converter="{StaticResource GetEntryStyleForegroundFromEntry}">
+              <Binding/>
+              <Binding Path="EntryStyles" Source="{x:Static LogGenius.Modules.Entries:EntriesModule.Instance}"/>
+            </MultiBinding>
+          </Setter.Value>
+        </Setter>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Template">
+          <Setter.Value>
+            <ControlTemplate TargetType="DataGridRowHeader">
+              <Grid x:Name="RowHeaderRoot">
+                <VisualStateManager.VisualStateGroups>
+                  <VisualStateGroup x:Name="CommonStates">
+                    <modernwpf:VisualStateGroupListener.Listener>
+                      <modernwpf:VisualStateGroupListener x:Name="CommonStatesListener" />
+                    </modernwpf:VisualStateGroupListener.Listener>
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="Normal_CurrentRow"/>
+                    <VisualState x:Name="Normal_Selected"/>
+                    <VisualState x:Name="Normal_EditingRow"/>
+                    <VisualState x:Name="Normal_CurrentRow_Selected"/>
+                    <VisualState x:Name="MouseOver"/>
+                    <VisualState x:Name="MouseOver_CurrentRow" />
+                    <VisualState x:Name="MouseOver_Unfocused_EditingRow" />
+                    <VisualState x:Name="MouseOver_EditingRow" />
+                    <VisualState x:Name="MouseOver_Unfocused_Selected" />
+                    <VisualState x:Name="MouseOver_Unfocused_CurrentRow_Selected" />
+                    <VisualState x:Name="MouseOver_CurrentRow_Selected"/>
+                    <VisualState x:Name="MouseOver_Selected" />
+                    <VisualState x:Name="Unfocused_EditingRow" />
+                    <VisualState x:Name="Unfocused_Selected" />
+                    <VisualState x:Name="Unfocused_CurrentRow_Selected" />
+                  </VisualStateGroup>
+                  <VisualStateGroup x:Name="ValidationStates">
+                    <VisualState x:Name="RowValid" />
+                    <VisualState x:Name="RowInvalid">
+                      <Storyboard>
+                        <DoubleAnimation
+                          Storyboard.TargetName="BackgroundRectangle"
+                          Storyboard.TargetProperty="Opacity"
+                          Duration="0"
+                          To="0" />
+                        <DoubleAnimation
+                          Storyboard.TargetName="RowInvalidVisualElement"
+                          Storyboard.TargetProperty="Opacity"
+                          Duration="0"
+                          To="0.4" />
+                      </Storyboard>
+                    </VisualState>
+                  </VisualStateGroup>
+                </VisualStateManager.VisualStateGroups>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="*" />
+                  <RowDefinition Height="*" />
+                  <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto" />
+                  <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Border
+                  BorderBrush="{TemplateBinding SeparatorBrush}"
+                  BorderThickness="0,0,1,0"
+                  Grid.RowSpan="3"
+                  Grid.ColumnSpan="2">
+                  <Grid Background="{TemplateBinding Background}">
+                    <Rectangle
+                      x:Name="RowInvalidVisualElement"
+                      Stretch="Fill"
+                      Fill="{DynamicResource DataGridRowInvalidBrush}"
+                      Opacity="0" />
+                  </Grid>
+                </Border>
+                <Rectangle
+                  x:Name="HorizontalSeparator"
+                  Grid.ColumnSpan="2"
+                  Grid.Row="2"
+                  Height="1"
+                  Margin="1,0,1,0"
+                  HorizontalAlignment="Stretch"
+                  Fill="{TemplateBinding SeparatorBrush}"
+                  Visibility="{TemplateBinding SeparatorVisibility}" />
+                <ContentPresenter
+                  VerticalAlignment="Center"
+                  HorizontalAlignment="Center"
+                  Margin="{TemplateBinding Padding}"
+                  Grid.Column="1"
+                  Grid.RowSpan="2"
+                  RecognizesAccessKey="True"
+                  SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                <Thumb
+                  x:Name="PART_TopHeaderGripper"
+                  Grid.ColumnSpan="2"
+                  Grid.RowSpan="3"
+                  VerticalAlignment="Top"
+                  Style="{StaticResource RowHeaderGripperStyle}" />
+                <Thumb
+                  x:Name="PART_BottomHeaderGripper"
+                  Grid.ColumnSpan="2"
+                  Grid.RowSpan="3"
+                  VerticalAlignment="Bottom"
+                  Style="{StaticResource RowHeaderGripperStyle}" />
+              </Grid>
+            </ControlTemplate>
+          </Setter.Value>
+        </Setter>
+      </Style>
+    </DataGrid.RowHeaderStyle>
+    <DataGrid.CellStyle>
+      <Style TargetType="DataGridCell" BasedOn="{StaticResource DefaultDataGridCellStyle}">
+        <Setter Property="MinHeight" Value="0"/>
+      </Style>
+    </DataGrid.CellStyle>
+    <DataGrid.Columns>
+      <DataGridTemplateColumn Header="Content" Width="Auto" CanUserSort="False">
+        <DataGridTemplateColumn.CellTemplate>
+          <DataTemplate>
+            <LogGenius.Modules.Entries:EntryView
+              Text="{Binding Text}"
+              FontFamily="pack://application:,,,/Resources/Fonts/MapleMono-Regular.ttf#Maple Mono"
+              FontSize="{DynamicResource FontSize}"
+              HighlightText="{Binding HighlightText, RelativeSource={RelativeSource AncestorType=UserControl}}"
+              HighlightTextCaseSensitiveEnabled="{Binding HighlightTextCaseSensitiveEnabled, RelativeSource={RelativeSource AncestorType=UserControl}}"
+              HighlightTextRegexEnabled="{Binding HighlightTextRegexEnabled, RelativeSource={RelativeSource AncestorType=UserControl}}"
+              >
+              <LogGenius.Modules.Entries:EntryView.HighlightTextBackgroundBrush>
+                <SolidColorBrush Color="{Binding Source={StaticResource TextControlSelectionHighlightColor}, Path=Color}"/>
+              </LogGenius.Modules.Entries:EntryView.HighlightTextBackgroundBrush>
+            </LogGenius.Modules.Entries:EntryView>
+          </DataTemplate>
+        </DataGridTemplateColumn.CellTemplate>
+      </DataGridTemplateColumn>
+    </DataGrid.Columns>
+  </DataGrid>
+</UserControl>

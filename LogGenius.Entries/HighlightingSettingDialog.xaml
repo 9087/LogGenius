@@ -1,0 +1,181 @@
+﻿<modernwpf:ContentDialog
+  x:Class="LogGenius.Modules.Entries.HighlightingSettingDialog"
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:modernwpf="http://schemas.modernwpf.com/2019"
+  xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+  xmlns:LogGenius.Core="clr-namespace:LogGenius.Core;assembly=LogGenius.Core"
+  xmlns:LogGenius.Modules.Entries="clr-namespace:LogGenius.Modules.Entries"
+  xmlns:ColorPicker="clr-namespace:ColorPicker;assembly=ColorPicker"
+  PrimaryButtonText="OK"
+  PrimaryButtonCommand="{Binding Source={x:Static LogGenius.Modules.Entries:EntriesModule.Instance}, Path=ConfirmHighlightingSettingDialogCommand}"
+  >
+  <GroupBox Header="Highlighting Settings">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="16"/>
+        <RowDefinition/>
+        <RowDefinition Height="16"/>
+        <RowDefinition/>
+        <RowDefinition Height="16"/>
+        <RowDefinition/>
+      </Grid.RowDefinitions>
+      <Grid Grid.Row="0">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition/>
+          <ColumnDefinition Width="5"/>
+          <ColumnDefinition Width="Auto" MinWidth="100"/>
+          <ColumnDefinition Width="2"/>
+        </Grid.ColumnDefinitions>
+        <ListBox
+          Grid.Column="0"
+          ItemsSource="{Binding EntryStyles}"
+          VirtualizingPanel.ScrollUnit="Pixel"
+          modernwpf:ScrollViewerHelper.AutoHideScrollBars="False"
+          SelectedItem="{Binding CurrentEntryStyle, Mode=TwoWay}"
+          >
+          <i:Interaction.Triggers>
+            <i:EventTrigger EventName="SelectionChanged">
+              <i:InvokeCommandAction Command="{Binding EntryStylesSelectionChangedCommand}"/>
+            </i:EventTrigger>
+          </i:Interaction.Triggers>
+          <ListBox.ItemTemplate>
+            <DataTemplate>
+              <Grid Width="500">
+                <Rectangle Fill="White"/>
+                <Rectangle Fill="{Binding Background}"/>
+                <LogGenius.Modules.Entries:EntryView
+                  Text="{Binding FilterPattern}"
+                  Background="Transparent"
+                  Foreground="{Binding Foreground}"
+                  FontFamily="pack://application:,,,/Resources/Fonts/MapleMono-Regular.ttf#Maple Mono"
+                  FontSize="{DynamicResource FontSize}"
+                  Padding="2,8,8,8"/>
+              </Grid>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+          <ListBox.ItemContainerStyle>
+            <Style TargetType="ListBoxItem" BasedOn="{StaticResource DefaultListBoxItemStyle}">
+              <Setter Property="BorderThickness" Value="0"/>
+              <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+              <Setter Property="Padding" Value="2,2,2,2"/>
+              <Setter Property="Margin" Value="0,0,16,-2"/>
+            </Style>
+          </ListBox.ItemContainerStyle>
+        </ListBox>
+        <modernwpf:SimpleStackPanel Grid.Column="2" Orientation="Vertical" Spacing="5">
+          <Button
+            HorizontalAlignment="Stretch"
+            Content="Up"
+            Command="{Binding MoveUpCurrentEntryStyleCommand}"
+            />
+          <Button
+            HorizontalAlignment="Stretch"
+            Content="Down"
+            Command="{Binding MoveDownCurrentEntryStyleCommand}"
+            />
+          <Button
+            HorizontalAlignment="Stretch"
+            Content="Add"
+            Command="{Binding AddEntryStyleCommand}"
+            />
+          <Button
+            HorizontalAlignment="Stretch"
+            Content="Delete"
+            Command="{Binding DeleteCurrentEntryStyleCommand}"
+            />
+          <Button
+            Grid.Column="8"
+            Content="Apply"
+            Width="100"
+            Command="{Binding ApplyEntryStyleCommand}"
+            />
+        </modernwpf:SimpleStackPanel>
+      </Grid>
+      <Grid Grid.Row="2">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="8"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <TextBlock
+            Grid.Column="0"
+            Text="Text Filter:"
+            VerticalAlignment="Center"
+            FontSize="{DynamicResource FontSize}"/>
+          <TextBox
+            Grid.Column="2"
+            Text="{Binding EditableEntryStyle.FilterPattern, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+            <i:Interaction.Triggers>
+              <i:EventTrigger EventName="TextChanged">
+                <i:InvokeCommandAction Command="{Binding FilterPatternTextChangedCommand}"/>
+              </i:EventTrigger>
+            </i:Interaction.Triggers>
+          </TextBox>
+        </Grid>
+      </Grid>
+      <Grid Grid.Row="4">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="12"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="12"/>
+          </Grid.ColumnDefinitions>
+          <CheckBox
+            Grid.Column="0"
+            Content="Case sensitive"
+            FontSize="{DynamicResource FontSize}"
+            VerticalContentAlignment="Center"
+            IsChecked="{Binding EditableEntryStyle.IsCaseSensitive, Mode=TwoWay}">
+            <i:Interaction.Triggers>
+              <i:EventTrigger EventName="Checked">
+                <i:InvokeCommandAction Command="{Binding EntryStylesSelectionChangedCommand}"/>
+              </i:EventTrigger>
+              <i:EventTrigger EventName="Unchecked">
+                <i:InvokeCommandAction Command="{Binding EntryStylesSelectionChangedCommand}"/>
+              </i:EventTrigger>
+            </i:Interaction.Triggers>
+          </CheckBox>
+          <CheckBox
+            Grid.Column="2"
+            Content="Regex"
+            FontSize="{DynamicResource FontSize}"
+            VerticalContentAlignment="Center"
+            IsChecked="{Binding EditableEntryStyle.IsRegex, Mode=TwoWay}">
+            <i:Interaction.Triggers>
+              <i:EventTrigger EventName="Checked">
+                <i:InvokeCommandAction Command="{Binding EntryStylesSelectionChangedCommand}"/>
+              </i:EventTrigger>
+              <i:EventTrigger EventName="Unchecked">
+                <i:InvokeCommandAction Command="{Binding EntryStylesSelectionChangedCommand}"/>
+              </i:EventTrigger>
+            </i:Interaction.Triggers>
+          </CheckBox>
+        </Grid>
+      </Grid>
+      <Grid Grid.Row="6">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="12"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="12"/>
+          </Grid.ColumnDefinitions>
+          <LogGenius.Modules.Entries:ColorButton
+            Grid.Column="0"
+            Color="{Binding EditableEntryStyle.ForegroundColor, Mode=TwoWay}"
+            Title="Foreground Color"/>
+          <LogGenius.Modules.Entries:ColorButton
+            Grid.Column="2"
+            Color="{Binding EditableEntryStyle.BackgroundColor, Mode=TwoWay}"
+            Title="Background Color"/>
+        </Grid>
+      </Grid>
+    </Grid>
+  </GroupBox>
+</modernwpf:ContentDialog>

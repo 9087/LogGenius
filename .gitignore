@@ -1,0 +1,11 @@
+/_ReSharper.Caches
+/LogGenius/obj
+/LogGenius/bin
+/.vs
+*.user
+/LogGenius.Core/bin
+/LogGenius.Core/obj
+/LogGenius.Candlestick/bin
+/LogGenius.Candlestick/obj
+/LogGenius.Entries/bin
+/LogGenius.Entries/obj
