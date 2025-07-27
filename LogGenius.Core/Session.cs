@@ -26,6 +26,9 @@ namespace LogGenius.Core
 
         private CancellationTokenSource? UpdatingTaskCancellationTokenSource;
 
+        [ObservableProperty]
+        private string? _FilePath = null;
+
         public Session()
         {
         }
@@ -35,7 +38,7 @@ namespace LogGenius.Core
             OpenFile(FilePath);
         }
 
-        public bool IsFileOpened => this.UpdatingTask != null && this.Reader != null;
+        public bool IsFileOpened => this.UpdatingTask != null && this.Reader != null && FilePath != null;
 
         [RelayCommand]
         public void OpenFileFromDialog()
@@ -69,6 +72,7 @@ namespace LogGenius.Core
             Clear();
             try
             {
+                this.FilePath = FilePath;
                 var Stream = new FileStream(FilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
                 this.Reader = new StreamReader(Stream);
                 this.UpdatingTaskCancellationTokenSource = new();
@@ -80,6 +84,7 @@ namespace LogGenius.Core
                 throw;
             }
             CoreModule.Instance.RaiseOnFileOpened(Path.GetFullPath(FilePath));
+            OnPropertyChanged(nameof(IsFileOpened));
         }
 
         [RelayCommand]
@@ -107,6 +112,8 @@ namespace LogGenius.Core
             {
                 Clear();
             }
+            this.FilePath = null;
+            OnPropertyChanged(nameof(IsFileOpened));
         }
 
         protected void Clear()

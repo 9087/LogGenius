@@ -8,6 +8,7 @@
   xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
   xmlns:LogGenius.Core="clr-namespace:LogGenius.Core"
   >
+  <BooleanToVisibilityConverter x:Key="BooleanToVisibility"/>
   <Style TargetType="Menu" BasedOn="{StaticResource DefaultMenuStyle}">
     <Setter Property="Height" Value="{DynamicResource {x:Static modernwpf:TitleBar.HeightKey}}" />
   </Style>
@@ -38,50 +39,60 @@
               Background="{DynamicResource SystemControlBackgroundChromeBlackMediumLowBrush}">
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="5"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="12"/>
                 <ColumnDefinition Width="1*"/>
               </Grid.ColumnDefinitions>
-              <Grid
-                Grid.Column="0">
-                <Grid.ColumnDefinitions>
-                  <ColumnDefinition Width="Auto"/>
-                  <ColumnDefinition Width="1*"/>
-                </Grid.ColumnDefinitions>
-                <Menu
-                  x:Name="PART_Menu"
-                  Grid.Column="0"
-                  WindowChrome.IsHitTestVisibleInChrome="True">
-                  <MenuItem Header="File">
-                    <MenuItem Header="Open..." Command="{Binding Source ={x:Static LogGenius.Core:Manager.Instance}, Path=Session.OpenFileFromDialogCommand}"/>
-                    <MenuItem Header="Close File" Command="{Binding Source ={x:Static LogGenius.Core:Manager.Instance}, Path=Session.CloseFileCommand}"/>
-                    <Separator/>
-                    <MenuItem
-                      Header="Recent Files"
-                      ItemsSource="{Binding Source={x:Static LogGenius.Core:CoreModule.Instance}, Path=RecentFiles}"
-                      >
-                      <MenuItem.ItemContainerStyle>
-                        <Style TargetType="MenuItem" BasedOn="{StaticResource DefaultMenuItemStyle}">
-                          <Setter Property="Command" Value="{Binding Source ={x:Static LogGenius.Core:Manager.Instance}, Path=Session.OpenFileCommand}"/>
-                          <Setter Property="CommandParameter" Value="{Binding}"/>
-                        </Style>
-                      </MenuItem.ItemContainerStyle>
-                    </MenuItem>
-                    <Separator/>
-                    <MenuItem Header="Exit" Command="{Binding Source ={x:Static LogGenius.Core:Manager.Instance}, Path=ShutdownCommand}"/>
-                  </MenuItem>
+              <Menu
+                x:Name="PART_Menu"
+                Grid.Column="0"
+                WindowChrome.IsHitTestVisibleInChrome="True">
+                <MenuItem Header="File">
+                  <MenuItem Header="Open..." Command="{Binding Source ={x:Static LogGenius.Core:Manager.Instance}, Path=Session.OpenFileFromDialogCommand}"/>
+                  <MenuItem Header="Close File" Command="{Binding Source ={x:Static LogGenius.Core:Manager.Instance}, Path=Session.CloseFileCommand}"/>
+                  <Separator/>
                   <MenuItem
-                    Header="Window"
-                    ItemsSource="{Binding Source={x:Static LogGenius.Core:Manager.Instance}, Path=WindowItems}">
+                    Header="Recent Files"
+                    ItemsSource="{Binding Source={x:Static LogGenius.Core:CoreModule.Instance}, Path=RecentFiles}"
+                    >
                     <MenuItem.ItemContainerStyle>
                       <Style TargetType="MenuItem" BasedOn="{StaticResource DefaultMenuItemStyle}">
-                        <Setter Property="IsCheckable" Value="True"/>
-                        <Setter Property="Header" Value="{Binding MenuTitle}"/>
-                        <Setter Property="IsChecked" Value="{Binding IsOpened, Mode=OneWay}"/>
-                        <Setter Property="Command" Value="{Binding OpenWindowCommand}"/>
+                        <Setter Property="Command" Value="{Binding Source ={x:Static LogGenius.Core:Manager.Instance}, Path=Session.OpenFileCommand}"/>
+                        <Setter Property="CommandParameter" Value="{Binding}"/>
                       </Style>
                     </MenuItem.ItemContainerStyle>
                   </MenuItem>
-                </Menu>
-              </Grid>
+                  <Separator/>
+                  <MenuItem Header="Exit" Command="{Binding Source ={x:Static LogGenius.Core:Manager.Instance}, Path=ShutdownCommand}"/>
+                </MenuItem>
+                <MenuItem
+                  Header="Window"
+                  ItemsSource="{Binding Source={x:Static LogGenius.Core:Manager.Instance}, Path=WindowItems}">
+                  <MenuItem.ItemContainerStyle>
+                    <Style TargetType="MenuItem" BasedOn="{StaticResource DefaultMenuItemStyle}">
+                      <Setter Property="IsCheckable" Value="True"/>
+                      <Setter Property="Header" Value="{Binding MenuTitle}"/>
+                      <Setter Property="IsChecked" Value="{Binding IsOpened, Mode=OneWay}"/>
+                      <Setter Property="Command" Value="{Binding OpenWindowCommand}"/>
+                    </Style>
+                  </MenuItem.ItemContainerStyle>
+                </MenuItem>
+              </Menu>
+              <TextBlock
+                Grid.Column="2"
+                FontSize="{DynamicResource FontSize}"
+                VerticalAlignment="Center"
+                Text="-"
+                Visibility="{Binding Session.IsFileOpened, Source={x:Static LogGenius.Core:Manager.Instance}, Converter={StaticResource BooleanToVisibility}}"/>
+              <TextBlock
+                Grid.Column="4"
+                Text="{Binding Session.FilePath, Source={x:Static LogGenius.Core:Manager.Instance}}"
+                TextWrapping="NoWrap"
+                VerticalAlignment="Center"
+                HorizontalAlignment="Left"
+                FontSize="{DynamicResource FontSize}"
+                />
             </Grid>
             <ContentControl Grid.Row="1" Content="{TemplateBinding Content}"/>
           </Grid>

@@ -25,7 +25,8 @@ namespace LogGenius.Core
         [ObservableProperty]
         protected List<WindowItem> _WindowItems = new();
 
-        public Session Session { get; private set; } = new Session();
+        [ObservableProperty]
+        public Session _Session = new Session();
 
         protected Manager()
         {
