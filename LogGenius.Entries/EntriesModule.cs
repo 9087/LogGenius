@@ -37,13 +37,6 @@ namespace LogGenius.Modules.Entries
             FullEntriesViewSource.Source = Session.Entries;
             FilteredEntriesViewSource.Source = Session.Entries;
             FilteredEntriesViewSource.Filter += OnFiltering;
-            Session.EntriesRefreshed += OnEntriesRefreshed;
-        }
-
-        private void OnEntriesRefreshed()
-        {
-            OnPropertyChanged(nameof(FullEntriesViewSource));
-            OnPropertyChanged(nameof(FilteredEntriesViewSource));
         }
 
         [RelayCommand]
