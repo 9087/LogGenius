@@ -185,5 +185,23 @@ namespace LogGenius.Modules.Entries
             FullEntriesViewSource.View.Refresh();
             FilteredEntriesViewSource.View.Refresh();
         }
+
+        [ObservableProperty]
+        [Setting]
+        private ObservableCollection<string> _FilterPatternSuggestions = new();
+
+        public void UpdateFilterPatternSuggestion(string FilterPattern)
+        {
+            var FoundIndex = FilterPatternSuggestions.IndexOf(FilterPattern);
+            if (FoundIndex >= 0)
+            {
+                FilterPatternSuggestions.RemoveAt(FoundIndex);
+            }
+            FilterPatternSuggestions.Insert(0, FilterPattern);
+            while (FilterPatternSuggestions.Count > 10)
+            {
+                FilterPatternSuggestions.RemoveAt(FilterPatternSuggestions.Count - 1);
+            }
+        }
     }
 }

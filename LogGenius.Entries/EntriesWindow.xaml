@@ -66,11 +66,16 @@
               VerticalAlignment="Center"
               FontSize="{DynamicResource FontSize}"/>
               <modernwpf:AutoSuggestBox
+                x:Name="PART_FilterPatternAutoSuggestBox"
                 Grid.Column="2"
                 Text="{Binding FilterPattern, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                 FontSize="{DynamicResource FontSize}"
                 MinHeight="0"
-                VerticalContentAlignment="Center">
+                VerticalContentAlignment="Center"
+                TextChanged="OnFilterPatternAutoSuggestBoxTextChanged"
+                SuggestionChosen="OnFilterPatternAutoSuggestBoxSuggestionChosen"
+                QuerySubmitted="OnFilterPatternAutoSuggestBoxQuerySubmitted"
+                >
                 <i:Interaction.Triggers>
                   <i:EventTrigger EventName="TextChanged">
                     <i:InvokeCommandAction Command="{Binding FilterPatternChangedCommand}"/>
