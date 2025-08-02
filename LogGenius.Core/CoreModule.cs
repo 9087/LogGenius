@@ -23,5 +23,13 @@ namespace LogGenius.Core
             }
             OnPropertyChanged(nameof(RecentFiles));
         }
+
+        [ObservableProperty]
+        [Setting]
+        private int _UpdateInterval = 10;
+
+        [ObservableProperty]
+        [Setting]
+        private int _UpdateBufferSize = 1 << 24;
     }
 }

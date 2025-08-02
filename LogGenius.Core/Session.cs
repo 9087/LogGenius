@@ -14,7 +14,9 @@ namespace LogGenius.Core
         [ObservableProperty]
         protected ObservableCollection<Entry> _Entries = new();
 
-        public int TickMilliseconds { get; set; } = 10;
+        public int Interval => CoreModule.Instance.UpdateInterval;
+
+        public int BufferSize => CoreModule.Instance.UpdateBufferSize;
 
         private StreamReader? Reader { get; set; } = null;
 
@@ -159,7 +161,7 @@ namespace LogGenius.Core
         private async void Update(CancellationToken UpdatingTaskCancellationToken)
         {
             Debug.Assert(this.Reader != null);
-            Memory<char> Buffer = new(new char[1 << 10]);
+            Memory<char> Buffer = new(new char[this.BufferSize]);
             long TotalLength = 0;
             while (!UpdatingTaskCancellationToken.IsCancellationRequested)
             {
@@ -181,7 +183,7 @@ namespace LogGenius.Core
                 }
                 else
                 {
-                    await Task.Delay(TickMilliseconds);
+                    await Task.Delay(Interval);
                 }
             }
         }
