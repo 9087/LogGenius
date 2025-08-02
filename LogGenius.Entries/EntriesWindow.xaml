@@ -65,38 +65,66 @@
               Text="Text Filter:"
               VerticalAlignment="Center"
               FontSize="{DynamicResource FontSize}"/>
-              <modernwpf:AutoSuggestBox
-                x:Name="PART_FilterPatternAutoSuggestBox"
-                Grid.Column="2"
-                Text="{Binding FilterPattern, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                FontSize="{DynamicResource FontSize}"
-                MinHeight="0"
-                VerticalContentAlignment="Center"
-                TextChanged="OnFilterPatternAutoSuggestBoxTextChanged"
-                SuggestionChosen="OnFilterPatternAutoSuggestBoxSuggestionChosen"
-                QuerySubmitted="OnFilterPatternAutoSuggestBoxQuerySubmitted"
-                >
-                <i:Interaction.Triggers>
-                  <i:EventTrigger EventName="TextChanged">
-                    <i:InvokeCommandAction Command="{Binding FilterPatternChangedCommand}"/>
-                  </i:EventTrigger>
-                </i:Interaction.Triggers>
-              </modernwpf:AutoSuggestBox>
-              <CheckBox
-                Grid.Column="4"
-                Content="Case sensitive"
-                FontSize="{DynamicResource FontSize}"
-                VerticalContentAlignment="Center"
-                MinWidth="0"
-                IsChecked="{Binding IsCaseSensitive}"/>
-              <CheckBox
-                Grid.Column="6"
-                Content="Regex"
-                FontSize="{DynamicResource FontSize}"
-                VerticalContentAlignment="Center"
-                MinWidth="0"
-                IsChecked="{Binding IsRegex}"/>
-            </Grid>
+            <modernwpf:AutoSuggestBox
+              x:Name="PART_FilterPatternAutoSuggestBox"
+              Grid.Column="2"
+              Text="{Binding FilterPattern, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+              FontSize="{DynamicResource FontSize}"
+              MinHeight="0"
+              VerticalContentAlignment="Center"
+              TextChanged="OnFilterPatternAutoSuggestBoxTextChanged"
+              SuggestionChosen="OnFilterPatternAutoSuggestBoxSuggestionChosen"
+              QuerySubmitted="OnFilterPatternAutoSuggestBoxQuerySubmitted"
+              ItemsSource="{Binding FilterPatternSuggestions, Source={x:Static LogGenius.Modules.Entries:EntriesModule.Instance}}"
+              >
+              <modernwpf:AutoSuggestBox.ItemContainerStyle>
+                <Style TargetType="ListViewItem" BasedOn="{StaticResource DefaultListViewItemStyle}">
+                  <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                  <Setter Property="Padding" Value="16,0,6,0"/>
+                </Style>
+              </modernwpf:AutoSuggestBox.ItemContainerStyle>
+              <modernwpf:AutoSuggestBox.ItemTemplate>
+                <DataTemplate>
+                  <Grid>
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="1*"/>
+                      <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid
+                      Grid.Column="0">
+                      <TextBlock Text="{Binding}" VerticalAlignment="Center"/>
+                    </Grid>
+                    <Button
+                      Grid.Column="1"
+                      Background="Transparent"
+                      Command="{Binding DeleteFilterPatternSuggestionCommand, Source={x:Static LogGenius.Modules.Entries:EntriesModule.Instance}}"
+                      CommandParameter="{Binding}">
+                      <modernwpf:FontIcon Glyph="&#xE74D;" FontSize="16"/>
+                    </Button>
+                  </Grid>
+                </DataTemplate>
+              </modernwpf:AutoSuggestBox.ItemTemplate>
+              <i:Interaction.Triggers>
+                <i:EventTrigger EventName="TextChanged">
+                  <i:InvokeCommandAction Command="{Binding FilterPatternChangedCommand}"/>
+                </i:EventTrigger>
+              </i:Interaction.Triggers>
+            </modernwpf:AutoSuggestBox>
+            <CheckBox
+              Grid.Column="4"
+              Content="Case sensitive"
+              FontSize="{DynamicResource FontSize}"
+              VerticalContentAlignment="Center"
+              MinWidth="0"
+              IsChecked="{Binding IsCaseSensitive}"/>
+            <CheckBox
+              Grid.Column="6"
+              Content="Regex"
+              FontSize="{DynamicResource FontSize}"
+              VerticalContentAlignment="Center"
+              MinWidth="0"
+              IsChecked="{Binding IsRegex}"/>
+          </Grid>
         </Border>
         <LogGenius.Modules.Entries:EntryGrid
           x:Name="PART_FilteredEntryGrid"

@@ -37,10 +37,6 @@ namespace LogGenius.Modules.Entries
 
         private void OnFilterPatternAutoSuggestBoxTextChanged(ModernWpf.Controls.AutoSuggestBox Sender, ModernWpf.Controls.AutoSuggestBoxTextChangedEventArgs EventArgs)
         {
-            if (EventArgs.Reason == ModernWpf.Controls.AutoSuggestionBoxTextChangeReason.UserInput)
-            {
-                PART_FilterPatternAutoSuggestBox.ItemsSource = EntriesModule.Instance.FilterPatternSuggestions;
-            }
         }
 
         private void OnFilterPatternAutoSuggestBoxSuggestionChosen(ModernWpf.Controls.AutoSuggestBox Sender, ModernWpf.Controls.AutoSuggestBoxSuggestionChosenEventArgs EventArgs)
@@ -48,9 +44,9 @@ namespace LogGenius.Modules.Entries
         }
 
         private void OnFilterPatternAutoSuggestBoxQuerySubmitted(ModernWpf.Controls.AutoSuggestBox Sender, ModernWpf.Controls.AutoSuggestBoxQuerySubmittedEventArgs EventArgs)
-        {
-            EntriesModule.Instance.UpdateFilterPatternSuggestion(PART_FilterPatternAutoSuggestBox.Text);
+        {            
             PART_FilterPatternAutoSuggestBox.IsSuggestionListOpen = false;
+            EntriesModule.Instance.UpdateFilterPatternSuggestion(PART_FilterPatternAutoSuggestBox.Text);
         }
     }
 }

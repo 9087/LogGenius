@@ -192,16 +192,22 @@ namespace LogGenius.Modules.Entries
 
         public void UpdateFilterPatternSuggestion(string FilterPattern)
         {
-            var FoundIndex = FilterPatternSuggestions.IndexOf(FilterPattern);
-            if (FoundIndex >= 0)
+            var Temporay = FilterPatternSuggestions.ToList();
+            Temporay.Remove(FilterPattern);
+            Temporay.Insert(0, FilterPattern);
+            while (Temporay.Count > 1)
             {
-                FilterPatternSuggestions.RemoveAt(FoundIndex);
+                Temporay.RemoveAt(Temporay.Count - 1);
             }
-            FilterPatternSuggestions.Insert(0, FilterPattern);
-            while (FilterPatternSuggestions.Count > 10)
-            {
-                FilterPatternSuggestions.RemoveAt(FilterPatternSuggestions.Count - 1);
-            }
+            FilterPatternSuggestions = new(Temporay);
+        }
+
+        [RelayCommand]
+        public void DeleteFilterPatternSuggestion(string FilterPattern)
+        {
+            var Temporay = FilterPatternSuggestions.ToList();
+            Temporay.Remove(FilterPattern);
+            FilterPatternSuggestions = new(Temporay);
         }
     }
 }
