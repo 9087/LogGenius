@@ -24,6 +24,10 @@ namespace LogGenius.Core
 
         public Action? EntriesRefreshed { get; set; }
 
+        public Action<List<Entry>>? EntriesAdded { get; set; }
+
+        public Action? EntriesCleared { get; set; }
+
         private Task? UpdatingTask = null;
 
         private CancellationTokenSource? UpdatingTaskCancellationTokenSource;
@@ -122,6 +126,7 @@ namespace LogGenius.Core
         {
             Entries.Clear();
             OnPropertyChanged(nameof(this.Entries));
+            EntriesCleared?.Invoke();
             EntriesRefreshed?.Invoke();
         }
 
@@ -133,6 +138,7 @@ namespace LogGenius.Core
                 this.Entries.Add(Entries[I]);
             }
             OnPropertyChanged(nameof(this.Entries));
+            EntriesAdded?.Invoke(Entries);
             EntriesRefreshed?.Invoke();
         }
 
