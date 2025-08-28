@@ -1,0 +1,76 @@
+﻿<UserControl
+  x:Class="LogGenius.Modules.Timeline.TimelineView"
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:modernwpf="http://schemas.modernwpf.com/2019"
+  xmlns:LogGenius.Modules.Timeline="clr-namespace:LogGenius.Modules.Timeline"
+  x:Name="THIS"
+  mc:Ignorable="d"
+  d:DesignHeight="450" d:DesignWidth="800"
+  >
+  <UserControl.Resources>
+    <LogGenius.Modules.Timeline:GetTimelineViewScrollBarMaximumValue x:Key="GetTimelineViewScrollBarMaximumValue"/>
+  </UserControl.Resources>
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="1*"/>
+      <RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
+    <ListView
+      x:Name="PART_ListView"
+      Grid.Row="0"
+      ItemsSource="{Binding Timeline.Sections, ElementName=THIS}"
+      ScrollViewer.HorizontalScrollBarVisibility="Hidden"
+      VirtualizingPanel.ScrollUnit="Pixel"
+      SelectionChanged="OnListViewSelectionChanged"
+      >
+      <ListView.ItemContainerStyle>
+        <Style TargetType="ListViewItem" BasedOn="{StaticResource DefaultListViewItemStyle}">
+          <Setter Property="Padding" Value="0"/>
+          <Setter Property="Margin" Value="0"/>
+          <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+          <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+          <Setter Property="MinHeight" Value="0"/>
+        </Style>
+      </ListView.ItemContainerStyle>
+      <ListView.ItemTemplate>
+        <DataTemplate>
+          <LogGenius.Modules.Timeline:SectionView
+            Section="{Binding}"
+            Timeline="{Binding Timeline, ElementName=THIS}"
+            Offset="{Binding Value, ElementName=PART_ScrollBar}"
+            HeaderWidth="{Binding HeaderWidth, ElementName=THIS}"
+            />
+        </DataTemplate>
+      </ListView.ItemTemplate>
+    </ListView>
+    <Grid
+      Grid.Row="1"
+      >
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="{Binding HeaderWidth, ElementName=THIS}"/>
+        <ColumnDefinition Width="1*"/>
+      </Grid.ColumnDefinitions>
+      <ScrollBar
+        Grid.Column="1"
+        x:Name="PART_ScrollBar"
+        Orientation="Horizontal"
+        ValueChanged="OnScrollBarValueChanged"
+        ViewportSize="{Binding ActualWidth, ElementName=PART_ListView}"
+        SmallChange="{Binding Timeline.LengthPerMillisecond, ElementName=THIS}"
+        LargeChange="{Binding ActualWidth, ElementName=PART_ListView}"
+        >
+        <ScrollBar.Maximum>
+          <MultiBinding Converter="{StaticResource GetTimelineViewScrollBarMaximumValue}">
+            <Binding Path="Timeline" ElementName="THIS"/>
+            <Binding Path="ActualWidth" ElementName="PART_ListView"/>
+            <Binding Path="HeaderWidth" ElementName="THIS"/>
+            <Binding Path="Timeline.TotalMilliseconds" ElementName="THIS"/>
+          </MultiBinding>
+        </ScrollBar.Maximum>
+      </ScrollBar>
+    </Grid>
+  </Grid>
+</UserControl>

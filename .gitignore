@@ -5,7 +5,7 @@
 *.user
 /LogGenius.Core/bin
 /LogGenius.Core/obj
-/LogGenius.Candlestick/bin
-/LogGenius.Candlestick/obj
 /LogGenius.Entries/bin
 /LogGenius.Entries/obj
+/LogGenius.Timeline/bin
+/LogGenius.Timeline/obj

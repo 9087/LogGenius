@@ -98,7 +98,7 @@
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="WindowActive" Value="False">
-              <Setter TargetName="PART_TitleBar" Property="Background" Value="{DynamicResource SystemControlBackgroundAltHighBrush}"/>
+              <Setter TargetName="PART_TitleBar" Property="Background" Value="{DynamicResource SystemControlBackgroundChromeMediumBrush}"/>
             </Trigger>
           </ControlTemplate.Triggers>
         </ControlTemplate>

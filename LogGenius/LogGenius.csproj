@@ -25,7 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\LogGenius.Candlestick\LogGenius.Modules.Candlestick.csproj" />
+    <ProjectReference Include="..\LogGenius.Timeline\LogGenius.Modules.Timeline.csproj" />
     <ProjectReference Include="..\LogGenius.Core\LogGenius.Core.csproj" />
     <ProjectReference Include="..\LogGenius.Entries\LogGenius.Modules.Entries.csproj" />
   </ItemGroup>

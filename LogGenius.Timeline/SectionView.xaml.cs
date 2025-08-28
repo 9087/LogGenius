@@ -1,0 +1,265 @@
+﻿using System.Diagnostics;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows.Shapes;
+
+namespace LogGenius.Modules.Timeline
+{
+    public partial class SectionView : UserControl
+    {
+        public static readonly DependencyProperty TimelineProperty =
+            DependencyProperty.Register(
+                nameof(Timeline),
+                typeof(Timeline),
+                typeof(SectionView),
+                new PropertyMetadata(null, OnTimelineChanged));
+
+        public Timeline? Timeline
+        {
+            get => (Timeline)GetValue(TimelineProperty);
+            set => SetValue(TimelineProperty, value);
+        }
+
+        private static void OnTimelineChanged(DependencyObject Object, DependencyPropertyChangedEventArgs EventArgs)
+        {
+        }
+
+        public static readonly DependencyProperty SectionProperty =
+            DependencyProperty.Register(
+                nameof(Section),
+                typeof(Section),
+                typeof(SectionView),
+                new PropertyMetadata(null, OnSectionChanged));
+
+        public Section? Section
+        {
+            get => (Section)GetValue(SectionProperty);
+            set => SetValue(SectionProperty, value);
+        }
+
+        private static void OnSectionChanged(DependencyObject Object, DependencyPropertyChangedEventArgs EventArgs)
+        {
+            if (Object is SectionView SectionView)
+            {
+                if (EventArgs.OldValue is Section OldSection)
+                {
+                    OldSection.RecordAdded -= SectionView.OnSectionRecordAdded;
+                }
+                SectionView.UpdateCanvas();
+                if (EventArgs.OldValue is Section NewSection)
+                {
+                    NewSection.RecordAdded += SectionView.OnSectionRecordAdded;
+                }
+            }
+        }
+
+        public static readonly DependencyProperty OffsetProperty =
+            DependencyProperty.Register(
+                nameof(Offset),
+                typeof(double),
+                typeof(SectionView),
+                new PropertyMetadata((double)0, OnOffsetChanged));
+
+        public double Offset
+        {
+            get => (double)GetValue(OffsetProperty);
+            set => SetValue(OffsetProperty, value);
+        }
+
+        private static void OnOffsetChanged(DependencyObject Object, DependencyPropertyChangedEventArgs EventArgs)
+        {
+            if (Object is SectionView SectionView)
+            {
+                SectionView.UpdateCanvas();
+            }
+        }
+
+        public static readonly DependencyProperty HeaderWidthProperty =
+            DependencyProperty.Register(
+                nameof(HeaderWidth),
+                typeof(double),
+                typeof(SectionView),
+                new PropertyMetadata(100.0, OnHeaderWidthChanged));
+
+        public double? HeaderWidth
+        {
+            get => (double)GetValue(HeaderWidthProperty);
+            set => SetValue(HeaderWidthProperty, value);
+        }
+
+        private static void OnHeaderWidthChanged(DependencyObject Object, DependencyPropertyChangedEventArgs EventArgs)
+        {
+        }
+
+        public static readonly DependencyProperty HeaderHeightProperty =
+            DependencyProperty.Register(
+                nameof(HeaderHeight),
+                typeof(double),
+                typeof(SectionView),
+                new PropertyMetadata(60.0, OnHeaderHeightChanged));
+
+        public double HeaderHeight
+        {
+            get => (double)GetValue(HeaderHeightProperty);
+            set => SetValue(HeaderHeightProperty, value);
+        }
+
+        private static void OnHeaderHeightChanged(DependencyObject Object, DependencyPropertyChangedEventArgs EventArgs)
+        {
+        }
+
+        public static readonly DependencyProperty MinHeaderHeightProperty =
+            DependencyProperty.Register(
+                nameof(MinHeaderHeight),
+                typeof(double),
+                typeof(SectionView),
+                new PropertyMetadata(30.0));
+
+        public double MinHeaderHeight
+        {
+            get => (double)GetValue(MinHeaderHeightProperty);
+            set => SetValue(MinHeaderHeightProperty, value);
+        }
+
+        public static readonly DependencyProperty MaxHeaderHeightProperty =
+            DependencyProperty.Register(
+                nameof(MaxHeaderHeight),
+                typeof(double),
+                typeof(SectionView),
+                new PropertyMetadata(800.0));
+
+        public double MaxHeaderHeight
+        {
+            get => (double)GetValue(MaxHeaderHeightProperty);
+            set => SetValue(MaxHeaderHeightProperty, value);
+        }
+
+        public SectionView()
+        {
+            InitializeComponent();
+        }
+
+        ~SectionView()
+        {
+            if (Section != null)
+            {
+                Section.RecordAdded -= OnSectionRecordAdded;
+                Section = null;
+            }
+        }
+
+        protected void OnSectionRecordAdded(PropertyRecord Record)
+        {
+            UpdateCanvas();
+        }
+
+        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
+        {
+            base.OnRenderSizeChanged(sizeInfo);
+            UpdateCanvas();
+        }
+
+        public void Invalidate()
+        {
+            UpdateCanvas();
+        }
+
+        private int FindEarliestKeyFrameIndexAfterTime(DateTime Time, int StartIndex, int EndIndex)
+        {
+            if (StartIndex == EndIndex)
+            {
+                return StartIndex;
+            }
+            var MiddleIndex = (StartIndex + EndIndex) / 2;
+            if (Section!.KeyFrames[MiddleIndex].DateTime < Time)
+            {
+                return FindEarliestKeyFrameIndexAfterTime(Time, MiddleIndex + 1, EndIndex);
+            }
+            else
+            {
+                return FindEarliestKeyFrameIndexAfterTime(Time, StartIndex, MiddleIndex);
+            }
+        }
+
+        private int FindEarliestKeyFrameIndexAfterTime(DateTime Time)
+        {
+            if (Section == null || Section.KeyFrames.Count == 0)
+            {
+                return -1;
+            }
+            return FindEarliestKeyFrameIndexAfterTime(Time, 0, Section.KeyFrames.Count - 1);
+        }
+
+        private void UpdateCanvas()
+        {
+            PART_Canvas.Children.Clear();
+            if (Section == null)
+            {
+                return;
+            }
+            var Timeline = (Timeline)this.Timeline!;
+            var Identity = (PropertyIdentity)Section.Identity!;
+            var Lower = (double)Identity.Lower!;
+            var Upper = (double)Identity.Upper!;
+            var ValueLength = Upper - Lower;
+            var InitialTime = (DateTime)Timeline.InitialTime!;
+            var ZeroTime = InitialTime + new TimeSpan(0, 0, 0, 0, (int)Math.Ceiling(Offset / Timeline.LengthPerMillisecond));
+
+            var EarliestKeyFrameIndex = FindEarliestKeyFrameIndexAfterTime(ZeroTime);
+            if (EarliestKeyFrameIndex < 0)
+            {
+                return;
+            }
+
+            for (int Index = Math.Max(0, EarliestKeyFrameIndex - 1); Index < Section.KeyFrames.Count - 1; Index++)
+            {
+                var PreviousKeyFrame = (KeyFrame)Section.KeyFrames[Index]!;
+                var LastTime = PreviousKeyFrame.DateTime;
+                var LastRecord = (PropertyRecord)PreviousKeyFrame.Records.Last()!;
+                var CurrentKeyFrame = (KeyFrame)Section.KeyFrames[Index + 1]!;
+
+                bool Finished = false;
+                foreach (PropertyRecord CurrentRecord in CurrentKeyFrame.Records)
+                {
+                    double GetHorizontalByTime(DateTime Time)
+                    {
+                        return -Offset + (Time - InitialTime).TotalMilliseconds * Timeline.LengthPerMillisecond;
+                    }
+                    double GetVerticalByValue(double Value)
+                    {
+                        return (1 - (Value - Lower) / ValueLength) * this.PART_Canvas.ActualHeight;
+                    }
+                    var X1 = GetHorizontalByTime(LastTime);
+                    var X2 = GetHorizontalByTime(CurrentKeyFrame.DateTime);
+                    var Y1 = GetVerticalByValue(LastRecord.Value);
+                    var Y2 = GetVerticalByValue(CurrentRecord.Value);
+                    PART_Canvas.Children.Add(
+                        new Line()
+                        {
+                            X1 = X1,
+                            Y1 = Y1,
+                            X2 = X2,
+                            Y2 = Y2,
+                            Stroke = new SolidColorBrush(Colors.Black)
+                        }
+                    );
+                    LastTime = CurrentKeyFrame.DateTime;
+                    LastRecord = CurrentRecord;
+                    Finished |= X2 > this.PART_Canvas.ActualWidth;
+                }
+                if (Finished)
+                {
+                    break;
+                }
+            }
+        }
+
+        private void OnThumbDragDelta(object Sender, System.Windows.Controls.Primitives.DragDeltaEventArgs EventArgs)
+        {
+            HeaderHeight += EventArgs.VerticalChange;
+            HeaderHeight = Math.Clamp(HeaderHeight, MinHeaderHeight, MaxHeaderHeight);
+            EventArgs.Handled = true;
+        }
+    }
+}

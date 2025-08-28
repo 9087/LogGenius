@@ -1,0 +1,55 @@
+﻿<UserControl
+  x:Class="LogGenius.Modules.Timeline.SectionView"
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:local="clr-namespace:LogGenius.Modules.Timeline"
+  mc:Ignorable="d"
+  x:Name="ROOT"
+  d:DesignHeight="450" d:DesignWidth="800">
+  <Border
+    BorderThickness="0,0,0,1"
+    BorderBrush="{DynamicResource GridLinesBrush}"
+    Height="{Binding HeaderHeight, ElementName=ROOT}"
+    >
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="1*"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+      <Grid Grid.Row="0">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="100"/>
+          <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+        <Canvas Grid.Column="1" x:Name="PART_Canvas">
+          <Line Stroke="Black" X1="0" Y1="0" X2="10" Y2="10"/>
+        </Canvas>
+        <Border
+          Grid.Column="0"
+          BorderThickness="0,0,1,0"
+          BorderBrush="{DynamicResource GridLinesBrush}"
+          Background="{DynamicResource DataGridColumnHeaderHoveredBackgroundBrush}"
+          >
+          <TextBlock
+            Grid.Row="0"
+            Text="{Binding Section.Identity.Name, ElementName=ROOT}"
+            Foreground="{DynamicResource DataGridColumnHeaderForegroundBrush}"
+            FontSize="{DynamicResource FontSize}"
+            VerticalAlignment="Center"
+            HorizontalAlignment="Center"
+            />
+        </Border>
+      </Grid>
+      <Thumb
+        Grid.Row="1"
+        Cursor="SizeNS"
+        DragDelta="OnThumbDragDelta"
+        Background="Transparent"
+        Height="2"
+        Margin="0,-2,0,0"
+        />
+    </Grid>
+  </Border>
+</UserControl>

@@ -10,7 +10,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LogGenius", "LogGenius\LogG
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LogGenius.Core", "LogGenius.Core\LogGenius.Core.csproj", "{BD80DE4D-F1EB-4BDF-899B-6569B37732F8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LogGenius.Modules.Candlestick", "LogGenius.Candlestick\LogGenius.Modules.Candlestick.csproj", "{8C62F38E-F062-4BDF-A4D2-947A759A1568}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LogGenius.Modules.Timeline", "LogGenius.Timeline\LogGenius.Modules.Timeline.csproj", "{8C62F38E-F062-4BDF-A4D2-947A759A1568}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LogGenius.Modules.Entries", "LogGenius.Entries\LogGenius.Modules.Entries.csproj", "{6931C3A2-931A-4E6B-B2F3-48DCDB33D762}"
 EndProject
