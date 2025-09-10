@@ -20,7 +20,7 @@
     </Grid.RowDefinitions>
     <ListView
       x:Name="PART_ListView"
-      Grid.Row="0"
+      Grid.RowSpan="2"
       ItemsSource="{Binding Timeline.Sections, ElementName=THIS}"
       ScrollViewer.HorizontalScrollBarVisibility="Hidden"
       VirtualizingPanel.ScrollUnit="Pixel"
@@ -61,6 +61,7 @@
         ViewportSize="{Binding ActualWidth, ElementName=PART_ListView}"
         SmallChange="{Binding Timeline.LengthPerMillisecond, ElementName=THIS}"
         LargeChange="{Binding ActualWidth, ElementName=PART_ListView}"
+        modernwpf:ScrollBarHelper.IndicatorMode="None"
         >
         <ScrollBar.Maximum>
           <MultiBinding Converter="{StaticResource GetTimelineViewScrollBarMaximumValue}">
