@@ -105,7 +105,7 @@ namespace LogGenius.Modules.Timeline
         }
     }
 
-    [WindowInfo("Timeline", 2, true)]
+    [WindowInfo("Timeline", 2, false)]
     public partial class TimelineWindow : LogGenius.Core.Window
     {
         public TimelineWindow()

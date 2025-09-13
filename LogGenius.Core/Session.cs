@@ -156,7 +156,7 @@ namespace LogGenius.Core
 
         private void PopBackEntry()
         {
-            _ = Application.Current.Dispatcher.InvokeAsync(() => PopBackEntryInMainThread());
+            _ = Application.Current?.Dispatcher.InvokeAsync(() => PopBackEntryInMainThread());
         }
 
         public void RequestRefreshEntries()

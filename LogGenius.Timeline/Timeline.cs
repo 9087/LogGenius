@@ -25,7 +25,8 @@ namespace LogGenius.Modules.Timeline
 
         public double TotalMilliseconds => Duration.TotalMilliseconds;
 
-        public float LengthPerMillisecond => 25;
+        [ObservableProperty]
+        private float _LengthPerMillisecond = 10;
 
         public PropertyIdentity? FindIdentity(string Name)
         {

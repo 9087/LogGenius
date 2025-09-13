@@ -3,7 +3,7 @@ using System.Windows.Controls;
 
 namespace LogGenius.Modules.Entries
 {
-    [WindowInfo("Entries", -1, false)]
+    [WindowInfo("Entries", -1, true)]
     public partial class EntriesWindow : LogGenius.Core.Window
     {
         public Session Project => (Session)this.DataContext;

@@ -21,22 +21,12 @@
         public bool UpdateBound(PropertyRecord Record)
         {
             bool Updated = false;
-            if (Lower == null)
+            if (Lower == null || Record.Value < Lower)
             {
                 Lower = Record.Value;
                 Updated = true;
             }
-            if (Upper == null)
-            {
-                Upper = Record.Value;
-                Updated = true;
-            }
-            if (Record.Value < Lower)
-            {
-                Lower = Record.Value;
-                Updated = true;
-            }
-            if (Record.Value > Upper)
+            if (Upper == null || Record.Value > Upper)
             {
                 Upper = Record.Value;
                 Updated = true;

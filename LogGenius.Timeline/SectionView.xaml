@@ -4,14 +4,40 @@
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-  xmlns:local="clr-namespace:LogGenius.Modules.Timeline"
+  xmlns:LogGenius.Modules.Timeline="clr-namespace:LogGenius.Modules.Timeline"
   mc:Ignorable="d"
-  x:Name="ROOT"
+  x:Name="THIS_SectionView"
   d:DesignHeight="450" d:DesignWidth="800">
+  <UserControl.Resources>
+    <Style x:Key="RecordMarkButtonStyle" TargetType="Button">
+      <Setter Property="Width" Value="8"/>
+      <Setter Property="Height" Value="8"/>
+      <Setter Property="Background" Value="LightGray"/>
+      <Setter Property="BorderBrush" Value="Gray"/>
+      <Setter Property="ToolTip" Value="{Binding Value}"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate>
+            <Border
+              CornerRadius="4"
+              Background="{TemplateBinding Background}"
+              BorderBrush="{TemplateBinding BorderBrush}"
+              BorderThickness="2"
+              />
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+      <Style.Triggers>
+        <Trigger Property="IsMouseOver" Value="True">
+          <Setter Property="Background" Value="White"/>
+        </Trigger>
+      </Style.Triggers>
+    </Style>
+  </UserControl.Resources>
   <Border
     BorderThickness="0,0,0,1"
     BorderBrush="{DynamicResource GridLinesBrush}"
-    Height="{Binding HeaderHeight, ElementName=ROOT}"
+    Height="{Binding HeaderHeight, ElementName=THIS_SectionView}"
     >
     <Grid>
       <Grid.RowDefinitions>
@@ -20,22 +46,20 @@
       </Grid.RowDefinitions>
       <Grid Grid.Row="0">
         <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="100"/>
+          <ColumnDefinition Width="{Binding HeaderWidth, RelativeSource={RelativeSource AncestorType=LogGenius.Modules.Timeline:TimelineView}}"/>
           <ColumnDefinition Width="1*"/>
         </Grid.ColumnDefinitions>
-        <Canvas Grid.Column="1" x:Name="PART_Canvas">
-          <Line Stroke="Black" X1="0" Y1="0" X2="10" Y2="10"/>
-        </Canvas>
+        <Canvas
+          Grid.Column="1"
+          x:Name="PART_Canvas"
+          ClipToBounds="True"
+          />
         <Border
           Grid.Column="0"
-          BorderThickness="0,0,1,0"
-          BorderBrush="{DynamicResource GridLinesBrush}"
-          Background="{DynamicResource DataGridColumnHeaderHoveredBackgroundBrush}"
           >
           <TextBlock
             Grid.Row="0"
-            Text="{Binding Section.Identity.Name, ElementName=ROOT}"
-            Foreground="{DynamicResource DataGridColumnHeaderForegroundBrush}"
+            Text="{Binding Section.Identity.Name, ElementName=THIS_SectionView}"
             FontSize="{DynamicResource FontSize}"
             VerticalAlignment="Center"
             HorizontalAlignment="Center"
@@ -45,10 +69,12 @@
       <Thumb
         Grid.Row="1"
         Cursor="SizeNS"
-        DragDelta="OnThumbDragDelta"
+        DragDelta="OnVerticalThumbDragDelta"
+        Height="5"
         Background="Transparent"
-        Height="2"
-        Margin="0,-2,0,0"
+        BorderBrush="Transparent"
+        Margin="0,0,0,-3"
+        MouseDoubleClick="OnVerticalThumbMouseDoubleClicked"
         />
     </Grid>
   </Border>

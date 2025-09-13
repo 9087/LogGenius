@@ -6,7 +6,8 @@
   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
   xmlns:modernwpf="http://schemas.modernwpf.com/2019"
   xmlns:LogGenius.Modules.Timeline="clr-namespace:LogGenius.Modules.Timeline"
-  x:Name="THIS"
+  xmlns:System="clr-namespace:System;assembly=mscorlib"
+  x:Name="THIS_TimelineView"
   mc:Ignorable="d"
   d:DesignHeight="450" d:DesignWidth="800"
   >
@@ -15,16 +16,91 @@
   </UserControl.Resources>
   <Grid>
     <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
       <RowDefinition Height="1*"/>
       <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
+    <Grid
+      Grid.Row="0"
+      Margin="12,0,12,0"
+      >
+      <modernwpf:SimpleStackPanel
+        Spacing="12"
+        HorizontalAlignment="Left"
+        Orientation="Horizontal"
+        >
+        <Button
+          Content="Minimize All"
+          Background="Transparent"
+          modernwpf:ControlHelper.CornerRadius="0"
+          Margin="0"
+          VerticalAlignment="Stretch"
+          FontSize="{DynamicResource FontSize}"
+          Click="OnMinimizeAllClicked"
+          ToolTip="Minimize all section heights."
+          />
+      </modernwpf:SimpleStackPanel>
+      <modernwpf:SimpleStackPanel
+        Spacing="12"
+        HorizontalAlignment="Right"
+        Orientation="Horizontal"
+        >
+        <StackPanel
+          Orientation="Horizontal"
+          >
+          <TextBlock
+            Text="Scale"
+            VerticalAlignment="Center"
+            Padding="0,0,6,0"
+            FontSize="{DynamicResource FontSize}"
+            />
+          <TextBlock
+            Text="{Binding Timeline.LengthPerMillisecond, ElementName=THIS_TimelineView}"
+            VerticalAlignment="Center"
+            Padding="0,0,2,0"
+            Width="20"
+            HorizontalAlignment="Center"
+            TextAlignment="Center"
+            FontSize="{DynamicResource FontSize}"
+            />
+          <TextBlock
+            Text="px・ms⁻¹"
+            VerticalAlignment="Center"
+            Padding="0,0,6,0"
+            FontSize="{DynamicResource FontSize}"
+            />
+          <Slider
+            Width="100"
+            Minimum="1"
+            Maximum="25"
+            TickFrequency="1"
+            IsSnapToTickEnabled="True"
+            Value="{Binding Timeline.LengthPerMillisecond, ElementName=THIS_TimelineView, Mode=TwoWay}"
+            Padding="0"
+            >
+            <Slider.Resources>
+              <CornerRadius x:Key="SliderThumbCornerRadius">6</CornerRadius>
+              <System:Double x:Key="SliderHorizontalThumbWidth">12</System:Double>
+              <System:Double x:Key="SliderHorizontalThumbHeight">12</System:Double>
+              <System:Double x:Key="SliderTrackThemeHeight">2</System:Double>
+              <System:Double x:Key="SliderPreContentMargin">15</System:Double>
+              <System:Double x:Key="SliderPostContentMargin">15</System:Double>
+              <System:Double x:Key="SliderHorizontalHeight">32</System:Double>
+            </Slider.Resources>
+          </Slider>
+        </StackPanel>
+      </modernwpf:SimpleStackPanel>
+    </Grid>
     <ListView
       x:Name="PART_ListView"
+      Grid.Row="1"
       Grid.RowSpan="2"
-      ItemsSource="{Binding Timeline.Sections, ElementName=THIS}"
+      ItemsSource="{Binding Timeline.Sections, ElementName=THIS_TimelineView}"
       ScrollViewer.HorizontalScrollBarVisibility="Hidden"
       VirtualizingPanel.ScrollUnit="Pixel"
       SelectionChanged="OnListViewSelectionChanged"
+      BorderThickness="0,1,0,0"
+      BorderBrush="{DynamicResource GridLinesBrush}"
       >
       <ListView.ItemContainerStyle>
         <Style TargetType="ListViewItem" BasedOn="{StaticResource DefaultListViewItemStyle}">
@@ -39,18 +115,21 @@
         <DataTemplate>
           <LogGenius.Modules.Timeline:SectionView
             Section="{Binding}"
-            Timeline="{Binding Timeline, ElementName=THIS}"
+            Timeline="{Binding Timeline, ElementName=THIS_TimelineView}"
             Offset="{Binding Value, ElementName=PART_ScrollBar}"
-            HeaderWidth="{Binding HeaderWidth, ElementName=THIS}"
+            HeaderWidth="{Binding HeaderWidth, ElementName=THIS_TimelineView}"
+            HeaderHeight="{Binding HeaderHeight, Mode=TwoWay}"
+            MinHeaderHeight="{Binding MinHeaderHeight}"
+            MaxHeaderHeight="{Binding MaxHeaderHeight}"
             />
         </DataTemplate>
       </ListView.ItemTemplate>
     </ListView>
     <Grid
-      Grid.Row="1"
+      Grid.Row="2"
       >
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="{Binding HeaderWidth, ElementName=THIS}"/>
+        <ColumnDefinition Width="{Binding HeaderWidth, ElementName=THIS_TimelineView}"/>
         <ColumnDefinition Width="1*"/>
       </Grid.ColumnDefinitions>
       <ScrollBar
@@ -59,19 +138,41 @@
         Orientation="Horizontal"
         ValueChanged="OnScrollBarValueChanged"
         ViewportSize="{Binding ActualWidth, ElementName=PART_ListView}"
-        SmallChange="{Binding Timeline.LengthPerMillisecond, ElementName=THIS}"
+        SmallChange="{Binding Timeline.LengthPerMillisecond, ElementName=THIS_TimelineView}"
         LargeChange="{Binding ActualWidth, ElementName=PART_ListView}"
         modernwpf:ScrollBarHelper.IndicatorMode="None"
         >
         <ScrollBar.Maximum>
           <MultiBinding Converter="{StaticResource GetTimelineViewScrollBarMaximumValue}">
-            <Binding Path="Timeline" ElementName="THIS"/>
+            <Binding Path="Timeline" ElementName="THIS_TimelineView"/>
             <Binding Path="ActualWidth" ElementName="PART_ListView"/>
-            <Binding Path="HeaderWidth" ElementName="THIS"/>
-            <Binding Path="Timeline.TotalMilliseconds" ElementName="THIS"/>
+            <Binding Path="HeaderWidth" ElementName="THIS_TimelineView"/>
+            <Binding Path="Timeline.TotalMilliseconds" ElementName="THIS_TimelineView"/>
+            <Binding Path="Timeline.LengthPerMillisecond" ElementName="THIS_TimelineView"/>
           </MultiBinding>
         </ScrollBar.Maximum>
       </ScrollBar>
+    </Grid>
+    <Grid
+      Grid.Row="1"
+      Grid.RowSpan="2">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="{Binding HeaderWidth, ElementName=THIS_TimelineView}"/>
+        <ColumnDefinition/>
+      </Grid.ColumnDefinitions>
+      <Border
+        BorderThickness="0,0,1,0"
+        BorderBrush="{DynamicResource GridLinesBrush}"
+        />
+      <Thumb
+        Grid.Column="0"
+        Cursor="SizeWE"
+        Background="Transparent"
+        Width="5"
+        Margin="0,0,-2.5,0"
+        HorizontalAlignment="Right"
+        DragDelta="OnHorizontalThumbDragDelta"
+        />
     </Grid>
   </Grid>
 </UserControl>

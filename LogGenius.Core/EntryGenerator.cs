@@ -38,7 +38,7 @@ namespace LogGenius.Core
                 if (NewLine)
                 {
                     Entries.Add(new(LineBuilder.ToString()));
-                    LineBuilder.Clear();
+                    LineBuilder.Length = 0;
                 }
                 if (Index < Length)
                 {

@@ -23,6 +23,25 @@ namespace LogGenius.Modules.Timeline
 
         private static void OnTimelineChanged(DependencyObject Object, DependencyPropertyChangedEventArgs EventArgs)
         {
+            if (Object is SectionView SectionView)
+            {
+                if (EventArgs.OldValue is Timeline OldTimeline)
+                {
+                    OldTimeline.PropertyChanged -= SectionView.OnTimelinePropertyChanged;
+                }
+                if (EventArgs.NewValue is Timeline NewTimeline)
+                {
+                    NewTimeline.PropertyChanged += SectionView.OnTimelinePropertyChanged;
+                }
+            }
+        }
+
+        private void OnTimelinePropertyChanged(object? Sender, System.ComponentModel.PropertyChangedEventArgs EventArgs)
+        {
+            if (EventArgs.PropertyName == nameof(Timeline.LengthPerMillisecond))
+            {
+                UpdateCanvas();
+            }
         }
 
         public static readonly DependencyProperty SectionProperty =
@@ -135,9 +154,12 @@ namespace LogGenius.Modules.Timeline
             set => SetValue(MaxHeaderHeightProperty, value);
         }
 
+        private Style? RecordMarkButtonStyle;
+
         public SectionView()
         {
             InitializeComponent();
+            RecordMarkButtonStyle = TryFindResource("RecordMarkButtonStyle") as Style;
         }
 
         ~SectionView()
@@ -146,6 +168,11 @@ namespace LogGenius.Modules.Timeline
             {
                 Section.RecordAdded -= OnSectionRecordAdded;
                 Section = null;
+            }
+            if (Timeline != null)
+            {
+                Timeline.PropertyChanged -= OnTimelinePropertyChanged;
+                Timeline = null;
             }
         }
 
@@ -194,7 +221,7 @@ namespace LogGenius.Modules.Timeline
         private void UpdateCanvas()
         {
             PART_Canvas.Children.Clear();
-            if (Section == null)
+            if (Section == null || this.Timeline == null)
             {
                 return;
             }
@@ -212,7 +239,25 @@ namespace LogGenius.Modules.Timeline
                 return;
             }
 
-            for (int Index = Math.Max(0, EarliestKeyFrameIndex - 1); Index < Section.KeyFrames.Count - 1; Index++)
+            double GetHorizontalByTime(DateTime Time)
+            {
+                return -Offset + (Time - InitialTime).TotalMilliseconds * Timeline.LengthPerMillisecond;
+            }
+            double GetVerticalByValue(double Value)
+            {
+                float PaddingTop = 10;
+                float PaddingBottom = 10;
+                if (ValueLength == 0)
+                {
+                    return PaddingTop;
+                }
+                return (1 - (Value - Lower) / ValueLength) * (this.PART_Canvas.ActualHeight - PaddingTop - PaddingBottom) + PaddingTop;
+            }
+
+            int VisibleFirstIndex = Math.Max(0, EarliestKeyFrameIndex - 1);
+            int VisibleLastIndex = Section.KeyFrames.Count - 1;
+
+            for (int Index = VisibleFirstIndex; Index < VisibleLastIndex; Index++)
             {
                 var PreviousKeyFrame = (KeyFrame)Section.KeyFrames[Index]!;
                 var LastTime = PreviousKeyFrame.DateTime;
@@ -222,14 +267,6 @@ namespace LogGenius.Modules.Timeline
                 bool Finished = false;
                 foreach (PropertyRecord CurrentRecord in CurrentKeyFrame.Records)
                 {
-                    double GetHorizontalByTime(DateTime Time)
-                    {
-                        return -Offset + (Time - InitialTime).TotalMilliseconds * Timeline.LengthPerMillisecond;
-                    }
-                    double GetVerticalByValue(double Value)
-                    {
-                        return (1 - (Value - Lower) / ValueLength) * this.PART_Canvas.ActualHeight;
-                    }
                     var X1 = GetHorizontalByTime(LastTime);
                     var X2 = GetHorizontalByTime(CurrentKeyFrame.DateTime);
                     var Y1 = GetVerticalByValue(LastRecord.Value);
@@ -241,7 +278,8 @@ namespace LogGenius.Modules.Timeline
                             Y1 = Y1,
                             X2 = X2,
                             Y2 = Y2,
-                            Stroke = new SolidColorBrush(Colors.Black)
+                            Stroke = new SolidColorBrush(Colors.Gray),
+                            StrokeThickness = 2,
                         }
                     );
                     LastTime = CurrentKeyFrame.DateTime;
@@ -250,16 +288,46 @@ namespace LogGenius.Modules.Timeline
                 }
                 if (Finished)
                 {
+                    VisibleLastIndex = Index + 1;
                     break;
+                }
+            }
+            VisibleLastIndex = Math.Max(VisibleLastIndex, VisibleFirstIndex);
+            for (int Index = VisibleFirstIndex; Index <= VisibleLastIndex; Index++)
+            {
+                var CurrentKeyFrame = (KeyFrame)Section.KeyFrames[Index]!;
+                foreach (var CurrentRecord in CurrentKeyFrame.Records)
+                {
+                    var X = GetHorizontalByTime(CurrentKeyFrame.DateTime);
+                    var Y = GetVerticalByValue(CurrentRecord.Value);
+                    var Button = new Button()
+                    {
+                        Style = RecordMarkButtonStyle,
+                        DataContext = CurrentRecord,
+                    };
+                    if (RecordMarkButtonStyle != null)
+                    {
+                        Button.Style = RecordMarkButtonStyle;
+                    }
+                    PART_Canvas.Children.Add(Button);
+                    Canvas.SetLeft(Button, X - Button.Width * 0.5);
+                    Canvas.SetTop(Button, Y - Button.Height * 0.5);
                 }
             }
         }
 
-        private void OnThumbDragDelta(object Sender, System.Windows.Controls.Primitives.DragDeltaEventArgs EventArgs)
+        private void OnVerticalThumbDragDelta(object Sender, System.Windows.Controls.Primitives.DragDeltaEventArgs EventArgs)
         {
-            HeaderHeight += EventArgs.VerticalChange;
-            HeaderHeight = Math.Clamp(HeaderHeight, MinHeaderHeight, MaxHeaderHeight);
+            HeaderHeight = Math.Clamp(HeaderHeight + EventArgs.VerticalChange, MinHeaderHeight, MaxHeaderHeight);
             EventArgs.Handled = true;
+        }
+
+        private void OnVerticalThumbMouseDoubleClicked(object Sender, System.Windows.Input.MouseButtonEventArgs EventArgs)
+        {
+            if (Section != null)
+            {
+                Section.HeaderHeight = Section.MaxHeaderHeight;
+            }
         }
     }
 }

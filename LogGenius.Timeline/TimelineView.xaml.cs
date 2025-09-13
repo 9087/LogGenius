@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Media.Animation;
 
 namespace LogGenius.Modules.Timeline
 {
@@ -63,7 +64,7 @@ namespace LogGenius.Modules.Timeline
                 typeof(TimelineView),
                 new PropertyMetadata(100.0, OnHeaderWidthChanged));
 
-        public double? HeaderWidth
+        public double HeaderWidth
         {
             get => (double)GetValue(HeaderWidthProperty);
             set => SetValue(HeaderWidthProperty, value);
@@ -71,6 +72,32 @@ namespace LogGenius.Modules.Timeline
 
         private static void OnHeaderWidthChanged(DependencyObject Object, DependencyPropertyChangedEventArgs EventArgs)
         {
+        }
+
+        public static readonly DependencyProperty MinHeaderWidthProperty =
+            DependencyProperty.Register(
+                nameof(MinHeaderWidth),
+                typeof(double),
+                typeof(TimelineView),
+                new PropertyMetadata(100.0));
+
+        public double MinHeaderWidth
+        {
+            get => (double)GetValue(MinHeaderWidthProperty);
+            set => SetValue(MinHeaderWidthProperty, value);
+        }
+
+        public static readonly DependencyProperty MaxHeaderWidthProperty =
+            DependencyProperty.Register(
+                nameof(MaxHeaderWidth),
+                typeof(double),
+                typeof(TimelineView),
+                new PropertyMetadata(300.0));
+
+        public double MaxHeaderWidth
+        {
+            get => (double)GetValue(MaxHeaderWidthProperty);
+            set => SetValue(MaxHeaderWidthProperty, value);
         }
 
         public TimelineView()
@@ -97,6 +124,23 @@ namespace LogGenius.Modules.Timeline
         private void OnListViewSelectionChanged(object Sender, SelectionChangedEventArgs EventArgs)
         {
             PART_ListView.SelectedItem = null;
+        }
+
+        private void OnHorizontalThumbDragDelta(object Sender, System.Windows.Controls.Primitives.DragDeltaEventArgs EventArgs)
+        {
+            HeaderWidth = Math.Clamp(HeaderWidth + EventArgs.HorizontalChange, MinHeaderWidth, MaxHeaderWidth);
+            EventArgs.Handled = true;
+        }
+
+        private void OnMinimizeAllClicked(object Sender, RoutedEventArgs EventArgs)
+        {
+            if (Timeline != null)
+            {
+                foreach (var Section in Timeline.Sections)
+                {
+                    Section.HeaderHeight = Section.MinHeaderHeight;
+                }
+            }
         }
     }
 }

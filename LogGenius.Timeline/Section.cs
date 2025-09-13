@@ -12,6 +12,13 @@ namespace LogGenius.Modules.Timeline
 
         public PropertyIdentity Identity { get; }
 
+        [ObservableProperty]
+        private double _HeaderHeight = 60.0;
+
+        public double MinHeaderHeight => 30.0;
+
+        public double MaxHeaderHeight => 300.0;
+
         public Section(PropertyIdentity Identity)
         {
             this.Identity = Identity;
