@@ -180,8 +180,11 @@ namespace LogGenius.Modules.Entries
                     }
                 }
             }
-            var BackgroundBrush = HighlightTextBackgroundBrush.Clone();
-            BackgroundBrush.Opacity = 0.3;
+            var BackgroundBrush = HighlightTextBackgroundBrush?.Clone();
+            if (BackgroundBrush != null)
+            {
+                BackgroundBrush.Opacity = 0.3;
+            }
             foreach (var InlineInfo in InlineInfos)
             {
                 if (InlineInfo.Text.Length == 0)
