@@ -1,13 +1,39 @@
 ﻿using LogGenius.Core;
+using System.Globalization;
 using System.Windows.Controls;
+using System.Windows.Data;
 
 namespace LogGenius.Modules.Entries
 {
+    public class GetTitleTextFromExcludingIndex : IValueConverter
+    {
+        public object Convert(object Value, Type TargetType, object Parameter, CultureInfo Culture)
+        {
+            return Value is int Integer ? $"Exclude Until {Integer}" : "Exclude Existing";
+        }
+
+        public object ConvertBack(object Value, Type TargetType, object Parameter, CultureInfo Culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class GetToggleStateFromExcludingIndex : IValueConverter
+    {
+        public object Convert(object Value, Type TargetType, object Parameter, CultureInfo Culture)
+        {
+            return Value is int Integer ? Integer >= 0 : false;
+        }
+
+        public object ConvertBack(object Value, Type TargetType, object Parameter, CultureInfo Culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     [WindowInfo("Entries", -1, true)]
     public partial class EntriesWindow : LogGenius.Core.Window
     {
-        public Session Project => (Session)this.DataContext;
-        
         public EntriesWindow()
         {
             InitializeComponent();

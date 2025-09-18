@@ -61,6 +61,14 @@ namespace LogGenius.Modules.Entries
         {
             if (e.Item is Entry Entry)
             {
+                if (ExcludingIndex != null)
+                {
+                    if (Entry.Line <= ExcludingIndex)
+                    {
+                        e.Accepted = false;
+                        return;
+                    }
+                }
                 e.Accepted = Entry.Test(FilterPattern, IsCaseSensitive, IsRegex);
             }
             else
@@ -208,6 +216,23 @@ namespace LogGenius.Modules.Entries
             var Temporay = FilterPatternSuggestions.ToList();
             Temporay.Remove(FilterPattern);
             FilterPatternSuggestions = new(Temporay);
+        }
+
+        [ObservableProperty]
+        private int? _ExcludingIndex = null;
+
+        [RelayCommand]
+        public void ExcludeFromExisting()
+        {
+            ExcludingIndex = Session.Entries.Count - 1;
+            FilteredEntriesViewSource.View.Refresh();
+        }
+
+        [RelayCommand]
+        public void CancelExcluding()
+        {
+            ExcludingIndex = null;
+            FilteredEntriesViewSource.View.Refresh();
         }
     }
 }
