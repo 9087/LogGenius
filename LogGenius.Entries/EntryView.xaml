@@ -7,11 +7,23 @@
   xmlns:modernwpf="http://schemas.modernwpf.com/2019"
   mc:Ignorable="d"
   d:DesignHeight="450" d:DesignWidth="800">
+  <UserControl.Resources>
+    <TextBox
+      x:Key="SelectableTextBox"
+      modernwpf:ControlHelper.CornerRadius="0"
+      IsReadOnly="True"
+      />
+  </UserControl.Resources>
   <Border>
-    <TextBlock
-      x:Name="PART_TextBlock"
-      SnapsToDevicePixels="True"
-      Padding="8,2,2,2"
-      MinHeight="0"/>
+    <Grid>
+      <TextBlock
+        x:Name="PART_TextBlock"
+        SnapsToDevicePixels="True"
+        Padding="8,2,2,2"
+        MinHeight="0"
+        />
+      <Grid
+        x:Name="PART_PopupSlot"/>
+    </Grid>
   </Border>
 </UserControl>

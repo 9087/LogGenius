@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
+using System.Windows.Input;
 using System.Windows.Media;
 
 namespace LogGenius.Modules.Entries
@@ -205,6 +206,87 @@ namespace LogGenius.Modules.Entries
         public EntryView()
         {
             InitializeComponent();
+        }
+
+        static TextBox? SelectableTextBox;
+
+        protected override void OnMouseDoubleClick(MouseButtonEventArgs e)
+        {
+            base.OnMouseDoubleClick(e);
+            if (!e.Handled)
+            {
+                DismissSelectableTextBox();
+                PopupSelectableTextBox();
+            }
+        }
+
+        protected void TryInitializeSelectableTextBox()
+        {
+            if (SelectableTextBox != null)
+            {
+                return;
+            }
+            SelectableTextBox = (TextBox) this.Resources["SelectableTextBox"];
+            var Padding = PART_TextBlock.Padding;
+            Padding.Left--;
+            Padding.Top--;
+            Padding.Right--;
+            Padding.Bottom--;
+            SelectableTextBox.Padding = Padding;
+            SelectableTextBox.Margin = PART_TextBlock.Margin;
+            SelectableTextBox.MinHeight = PART_TextBlock.MinHeight;
+            SelectableTextBox.FontFamily = PART_TextBlock.FontFamily;
+            SelectableTextBox.FontSize = PART_TextBlock.FontSize;
+        }
+
+        private void OnWindowPreviewMouseDown(object Sender, MouseButtonEventArgs EventArgs)
+        {
+            if (SelectableTextBox == null)
+            {
+                return;
+            }
+            Point MousePosition = EventArgs.GetPosition(SelectableTextBox);
+            if (MousePosition.X >= 0 &&
+                MousePosition.Y >= 0 &&
+                MousePosition.X <= SelectableTextBox.ActualWidth &&
+                MousePosition.Y <= SelectableTextBox.ActualHeight)
+            {
+                return;
+            }
+            DismissSelectableTextBox();
+        }
+
+        protected void PopupSelectableTextBox()
+        {
+            TryInitializeSelectableTextBox();
+            SelectableTextBox!.Text = Text;
+            PART_TextBlock.Visibility = Visibility.Hidden;
+            PART_PopupSlot.Children.Add(SelectableTextBox);
+            var Window = ModernWpf.VisualTree.FindAscendant<Window>(this);
+            Window.PreviewMouseDown += OnWindowPreviewMouseDown;
+            Mouse.Capture(SelectableTextBox);
+        }
+
+        protected static void DismissSelectableTextBox()
+        {
+            if (SelectableTextBox == null)
+            {
+                return;
+            }
+            var ParentPanel = SelectableTextBox?.Parent as Panel;
+            if (ParentPanel == null)
+            {
+                return;
+            }
+            var EntryView = ModernWpf.VisualTree.FindAscendant<EntryView>(ParentPanel);
+            if (EntryView != null)
+            {
+                Mouse.Capture(null);
+                var Window = ModernWpf.VisualTree.FindAscendant<Window>(EntryView);
+                Window.PreviewMouseDown -= EntryView.OnWindowPreviewMouseDown;
+                EntryView.PART_PopupSlot.Children.Clear();
+                EntryView.PART_TextBlock.Visibility = Visibility.Visible;
+            }
         }
     }
 }
