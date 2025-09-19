@@ -4,6 +4,7 @@
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
   xmlns:modernwpf="http://schemas.modernwpf.com/2019"
   xmlns:LogGenius.Core="clr-namespace:LogGenius.Core;assembly=LogGenius.Core"
   xmlns:LogGenius.Modules.Entries="clr-namespace:LogGenius.Modules.Entries"
@@ -13,6 +14,19 @@
   <UserControl.Resources>
     <LogGenius.Modules.Entries:GetEntryStyleForegroundFromEntry x:Key="GetEntryStyleForegroundFromEntry"/>
     <LogGenius.Modules.Entries:GetEntryStyleBackgroundFromEntry x:Key="GetEntryStyleBackgroundFromEntry"/>
+    <ContextMenu x:Key="ItemContextMenu">
+      <MenuItem
+        Header="Exclude Until This">
+        <i:Interaction.Triggers>
+          <i:EventTrigger EventName="Click">
+            <i:InvokeCommandAction
+              Command="{Binding ExcludeFromEntryCommand, Source={x:Static LogGenius.Modules.Entries:EntriesModule.Instance}}"
+              CommandParameter="{Binding}"
+              />
+          </i:EventTrigger>
+        </i:Interaction.Triggers>
+      </MenuItem>
+    </ContextMenu>
   </UserControl.Resources>
   <DataGrid
     x:Name="PART_DataGrid"
@@ -52,6 +66,7 @@
             </MultiBinding>
           </Setter.Value>
         </Setter>
+        <Setter Property="ContextMenu" Value="{StaticResource ItemContextMenu}"/>
         <Setter Property="Template">
           <Setter.Value>
             <ControlTemplate TargetType="DataGridRow">

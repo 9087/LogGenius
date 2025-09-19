@@ -224,7 +224,18 @@ namespace LogGenius.Modules.Entries
         [RelayCommand]
         public void ExcludeFromExisting()
         {
+            if (ExcludingIndex != null)
+            {
+                return;
+            }
             ExcludingIndex = Session.Entries.Count - 1;
+            FilteredEntriesViewSource.View.Refresh();
+        }
+
+        [RelayCommand]
+        public void ExcludeFromEntry(Entry Entry)
+        {
+            ExcludingIndex = (int) Entry.Line;
             FilteredEntriesViewSource.View.Refresh();
         }
 
