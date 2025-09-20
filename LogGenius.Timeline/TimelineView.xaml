@@ -55,27 +55,26 @@
             FontSize="{DynamicResource FontSize}"
             />
           <TextBlock
-            Text="{Binding Timeline.LengthPerMillisecond, ElementName=THIS_TimelineView}"
+            Text="{Binding Timeline.MillisecondPerPixel, ElementName=THIS_TimelineView}"
             VerticalAlignment="Center"
             Padding="0,0,2,0"
-            Width="20"
             HorizontalAlignment="Center"
             TextAlignment="Center"
             FontSize="{DynamicResource FontSize}"
             />
           <TextBlock
-            Text="px・ms⁻¹"
+            Text="ms・px⁻¹"
             VerticalAlignment="Center"
             Padding="0,0,6,0"
             FontSize="{DynamicResource FontSize}"
             />
           <Slider
             Width="100"
-            Minimum="1"
-            Maximum="25"
-            TickFrequency="1"
+            Minimum="0"
+            Maximum="15"
+            TickPlacement="Both"
             IsSnapToTickEnabled="True"
-            Value="{Binding Timeline.LengthPerMillisecond, ElementName=THIS_TimelineView, Mode=TwoWay}"
+            Value="{Binding Timeline.MillisecondPerPixelIndex, ElementName=THIS_TimelineView, Mode=TwoWay}"
             Padding="0"
             >
             <Slider.Resources>
@@ -138,7 +137,7 @@
         Orientation="Horizontal"
         ValueChanged="OnScrollBarValueChanged"
         ViewportSize="{Binding ActualWidth, ElementName=PART_ListView}"
-        SmallChange="{Binding Timeline.LengthPerMillisecond, ElementName=THIS_TimelineView}"
+        SmallChange="{Binding Timeline.MillisecondPerPixel, ElementName=THIS_TimelineView}"
         LargeChange="{Binding ActualWidth, ElementName=PART_ListView}"
         modernwpf:ScrollBarHelper.IndicatorMode="None"
         >
@@ -148,7 +147,7 @@
             <Binding Path="ActualWidth" ElementName="PART_ListView"/>
             <Binding Path="HeaderWidth" ElementName="THIS_TimelineView"/>
             <Binding Path="Timeline.TotalMilliseconds" ElementName="THIS_TimelineView"/>
-            <Binding Path="Timeline.LengthPerMillisecond" ElementName="THIS_TimelineView"/>
+            <Binding Path="Timeline.MillisecondPerPixel" ElementName="THIS_TimelineView"/>
           </MultiBinding>
         </ScrollBar.Maximum>
       </ScrollBar>

@@ -38,7 +38,7 @@ namespace LogGenius.Modules.Timeline
 
         private void OnTimelinePropertyChanged(object? Sender, System.ComponentModel.PropertyChangedEventArgs EventArgs)
         {
-            if (EventArgs.PropertyName == nameof(Timeline.LengthPerMillisecond))
+            if (EventArgs.PropertyName == nameof(Timeline.MillisecondPerPixel))
             {
                 UpdateCanvas();
             }
@@ -231,7 +231,7 @@ namespace LogGenius.Modules.Timeline
             var Upper = (double)Identity.Upper!;
             var ValueLength = Upper - Lower;
             var InitialTime = (DateTime)Timeline.InitialTime!;
-            var ZeroTime = InitialTime + new TimeSpan(0, 0, 0, 0, (int)Math.Ceiling(Offset / Timeline.LengthPerMillisecond));
+            var ZeroTime = InitialTime + new TimeSpan(0, 0, 0, 0, (int)Math.Ceiling(Offset * Timeline.MillisecondPerPixel));
 
             var EarliestKeyFrameIndex = FindEarliestKeyFrameIndexAfterTime(ZeroTime);
             if (EarliestKeyFrameIndex < 0)
@@ -241,7 +241,7 @@ namespace LogGenius.Modules.Timeline
 
             double GetHorizontalByTime(DateTime Time)
             {
-                return -Offset + (Time - InitialTime).TotalMilliseconds * Timeline.LengthPerMillisecond;
+                return -Offset + (Time - InitialTime).TotalMilliseconds / Timeline.MillisecondPerPixel;
             }
             double GetVerticalByValue(double Value)
             {

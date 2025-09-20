@@ -23,7 +23,7 @@ namespace LogGenius.Modules.Timeline
                 var HeaderInfo = Entry.GetHeaderInfo();
                 if (HeaderInfo == null)
                 {
-                    return;
+                    continue;
                 }
                 Timeline.UpdateTime(HeaderInfo.DateTime);
                 var Records = Entry.GetRecords(this.Timeline, NewIdentities);

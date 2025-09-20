@@ -25,8 +25,13 @@ namespace LogGenius.Modules.Timeline
 
         public double TotalMilliseconds => Duration.TotalMilliseconds;
 
+        static float[] MillisecondPerPixelChoices = new float[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 50, 100, 200, 500, 1000 };
+
         [ObservableProperty]
-        private float _LengthPerMillisecond = 10;
+        [NotifyPropertyChangedFor(nameof(MillisecondPerPixel))]
+        private int _MillisecondPerPixelIndex = 1;
+
+        public float MillisecondPerPixel => MillisecondPerPixelChoices[MillisecondPerPixelIndex];
 
         public PropertyIdentity? FindIdentity(string Name)
         {

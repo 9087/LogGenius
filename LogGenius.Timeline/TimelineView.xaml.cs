@@ -29,7 +29,7 @@ namespace LogGenius.Modules.Timeline
                 return null;
             }
             var HeaderWidth = (double)Values[2];
-            return Math.Max(0, Timeline!.LengthPerMillisecond * Timeline!.TotalMilliseconds - (ActualWidth - HeaderWidth));
+            return Math.Max(0, Timeline!.TotalMilliseconds / Timeline!.MillisecondPerPixel - (ActualWidth - HeaderWidth));
         }
 
         public object[] ConvertBack(object Value, Type[] TargetTypes, object Parameter, CultureInfo Culture)
