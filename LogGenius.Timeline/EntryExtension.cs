@@ -32,9 +32,9 @@ namespace LogGenius.Modules.Timeline
             return new HeaderInfo(DateTime, FrameIndex);
         }
 
-        public static Dictionary<PropertyIdentity, PropertyRecord>? GetRecords(this Entry Entry, Timeline Timeline, Dictionary<string, PropertyIdentity> NewIdentities)
+        public static List<PropertyRecord>? GetRecords(this Entry Entry, Timeline Timeline, Dictionary<string, PropertyIdentity> NewIdentities)
         {
-            Dictionary<PropertyIdentity, PropertyRecord>? Records = null;
+            List<PropertyRecord>? Records = null;
             var Matches = PropertyRecordPattern.Matches(Entry.Text);
             foreach (Match Match in Matches)
             {
@@ -58,7 +58,7 @@ namespace LogGenius.Modules.Timeline
                     Identity,
                     Value
                 );
-                Records.Add(NewRecord.Identity, NewRecord);
+                Records.Add(NewRecord);
             }
             return Records;
         }

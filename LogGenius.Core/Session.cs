@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
+using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
@@ -19,8 +20,6 @@ namespace LogGenius.Core
         public int BufferSize => CoreModule.Instance.UpdateBufferSize;
 
         private StreamReader? Reader { get; set; } = null;
-
-        private EntryGenerator Generator = new();
 
         public Action? EntriesRefreshed { get; set; }
 
@@ -75,7 +74,7 @@ namespace LogGenius.Core
             {
                 throw new FileNotFoundException(nameof(FilePath));
             }
-            Clear();
+            ClearEntries();
             try
             {
                 this.FilePath = FilePath;
@@ -116,18 +115,10 @@ namespace LogGenius.Core
             }
             if (Entries.Count != 0)
             {
-                Clear();
+                ClearEntries();
             }
             this.FilePath = null;
             OnPropertyChanged(nameof(IsFileOpened));
-        }
-
-        protected void Clear()
-        {
-            Entries.Clear();
-            OnPropertyChanged(nameof(this.Entries));
-            EntriesCleared?.Invoke();
-            EntriesRefreshed?.Invoke();
         }
 
         private void PushBackEntriesInMainThread(List<Entry> Entries)
@@ -149,6 +140,14 @@ namespace LogGenius.Core
             EntriesRefreshed?.Invoke();
         }
 
+        protected void ClearEntriesInMainThread()
+        {
+            Entries.Clear();
+            OnPropertyChanged(nameof(this.Entries));
+            EntriesCleared?.Invoke();
+            EntriesRefreshed?.Invoke();
+        }
+
         private void PushBackEntries(List<Entry> Entries)
         {
             _ = Application.Current.Dispatcher.InvokeAsync(() => PushBackEntriesInMainThread(Entries));
@@ -159,9 +158,9 @@ namespace LogGenius.Core
             _ = Application.Current?.Dispatcher.InvokeAsync(() => PopBackEntryInMainThread());
         }
 
-        public void RequestRefreshEntries()
+        private void ClearEntries()
         {
-            EntriesRefreshed?.Invoke();
+            _ = Application.Current.Dispatcher.InvokeAsync(() => ClearEntriesInMainThread());
         }
 
         private async void Update(CancellationToken UpdatingTaskCancellationToken)
@@ -169,11 +168,12 @@ namespace LogGenius.Core
             Debug.Assert(this.Reader != null);
             Memory<char> Buffer = new(new char[this.BufferSize]);
             long TotalLength = 0;
+            EntryGenerator Generator = new();
             while (!UpdatingTaskCancellationToken.IsCancellationRequested)
             {
                 if (TotalLength > this.Reader.BaseStream.Length)
                 {
-                    _ = Application.Current.Dispatcher.InvokeAsync(() => Clear());
+                    ClearEntries();
                     Generator.Clear();
                     this.Reader.BaseStream.Position = 0;
                 }

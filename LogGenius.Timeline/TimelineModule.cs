@@ -31,7 +31,7 @@ namespace LogGenius.Modules.Timeline
                 {
                     continue;
                 }
-                foreach (var Record in Records.Values)
+                foreach (var Record in Records)
                 {
                     Timeline.AddRecord(HeaderInfo.DateTime, Record);
                 }
@@ -40,6 +40,7 @@ namespace LogGenius.Modules.Timeline
 
         private void OnEntriesCleared()
         {
+            Timeline = new();
         }
     }
 }
