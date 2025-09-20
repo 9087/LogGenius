@@ -145,7 +145,7 @@
               </ToggleButton.IsChecked>
               <i:Interaction.Triggers>
                 <i:EventTrigger EventName="Checked">
-                  <i:InvokeCommandAction Command="{Binding ExcludeFromExistingCommand}"/>
+                  <i:InvokeCommandAction Command="{Binding ExcludeExistingCommand}"/>
                 </i:EventTrigger>
                 <i:EventTrigger EventName="Unchecked">
                   <i:InvokeCommandAction Command="{Binding CancelExcludingCommand}"/>

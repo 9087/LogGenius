@@ -15,16 +15,40 @@
     <LogGenius.Modules.Entries:GetEntryStyleForegroundFromEntry x:Key="GetEntryStyleForegroundFromEntry"/>
     <LogGenius.Modules.Entries:GetEntryStyleBackgroundFromEntry x:Key="GetEntryStyleBackgroundFromEntry"/>
     <ContextMenu x:Key="ItemContextMenu">
-      <MenuItem
-        Header="Exclude Until This">
-        <i:Interaction.Triggers>
-          <i:EventTrigger EventName="Click">
-            <i:InvokeCommandAction
-              Command="{Binding ExcludeFromEntryCommand, Source={x:Static LogGenius.Modules.Entries:EntriesModule.Instance}}"
-              CommandParameter="{Binding}"
-              />
-          </i:EventTrigger>
-        </i:Interaction.Triggers>
+      <MenuItem Header="Exclude">
+        <MenuItem
+          Header="Before This"
+          >
+          <i:Interaction.Triggers>
+            <i:EventTrigger EventName="Click">
+              <i:InvokeCommandAction
+                Command="{Binding ExcludeBeforeEntryCommand, Source={x:Static LogGenius.Modules.Entries:EntriesModule.Instance}}"
+                CommandParameter="{Binding}"
+                />
+            </i:EventTrigger>
+          </i:Interaction.Triggers>
+        </MenuItem>
+        <MenuItem
+          Header="Until This">
+          <i:Interaction.Triggers>
+            <i:EventTrigger EventName="Click">
+              <i:InvokeCommandAction
+                Command="{Binding ExcludeFromEntryCommand, Source={x:Static LogGenius.Modules.Entries:EntriesModule.Instance}}"
+                CommandParameter="{Binding}"
+                />
+            </i:EventTrigger>
+          </i:Interaction.Triggers>
+        </MenuItem>
+        <MenuItem
+          Header="Exiting">
+          <i:Interaction.Triggers>
+            <i:EventTrigger EventName="Click">
+              <i:InvokeCommandAction
+                Command="{Binding ExcludeExistingCommand, Source={x:Static LogGenius.Modules.Entries:EntriesModule.Instance}}"
+                />
+            </i:EventTrigger>
+          </i:Interaction.Triggers>
+        </MenuItem>
       </MenuItem>
     </ContextMenu>
   </UserControl.Resources>

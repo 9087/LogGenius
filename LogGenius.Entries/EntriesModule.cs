@@ -222,7 +222,7 @@ namespace LogGenius.Modules.Entries
         private int? _ExcludingIndex = null;
 
         [RelayCommand]
-        public void ExcludeFromExisting()
+        public void ExcludeExisting()
         {
             if (ExcludingIndex != null)
             {
@@ -235,7 +235,19 @@ namespace LogGenius.Modules.Entries
         [RelayCommand]
         public void ExcludeFromEntry(Entry Entry)
         {
-            ExcludingIndex = (int) Entry.Line;
+            ExcludingIndex = (int)Entry.Line;
+            FilteredEntriesViewSource.View.Refresh();
+        }
+
+        [RelayCommand]
+        public void ExcludeBeforeEntry(Entry Entry)
+        {
+            if (Entry.Line == 0)
+            {
+                CancelExcluding();
+                return;
+            }
+            ExcludingIndex = (int)Entry.Line - 1;
             FilteredEntriesViewSource.View.Refresh();
         }
 
