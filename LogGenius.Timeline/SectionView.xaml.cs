@@ -40,7 +40,7 @@ namespace LogGenius.Modules.Timeline
         {
             if (EventArgs.PropertyName == nameof(Timeline.MillisecondPerPixel))
             {
-                UpdateCanvas();
+                UpdateCurves();
             }
         }
 
@@ -65,7 +65,7 @@ namespace LogGenius.Modules.Timeline
                 {
                     OldSection.RecordAdded -= SectionView.OnSectionRecordAdded;
                 }
-                SectionView.UpdateCanvas();
+                SectionView.UpdateCurves();
                 if (EventArgs.OldValue is Section NewSection)
                 {
                     NewSection.RecordAdded += SectionView.OnSectionRecordAdded;
@@ -90,7 +90,7 @@ namespace LogGenius.Modules.Timeline
         {
             if (Object is SectionView SectionView)
             {
-                SectionView.UpdateCanvas();
+                SectionView.UpdateCurves();
             }
         }
 
@@ -178,18 +178,18 @@ namespace LogGenius.Modules.Timeline
 
         protected void OnSectionRecordAdded(PropertyRecord Record)
         {
-            UpdateCanvas();
+            UpdateCurves();
         }
 
-        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
+        protected override void OnRenderSizeChanged(SizeChangedInfo SizeInfo)
         {
-            base.OnRenderSizeChanged(sizeInfo);
-            UpdateCanvas();
+            base.OnRenderSizeChanged(SizeInfo);
+            UpdateCurves();
         }
 
         public void Invalidate()
         {
-            UpdateCanvas();
+            UpdateCurves();
         }
 
         private int FindEarliestKeyFrameIndexAfterTime(DateTime Time, int StartIndex, int EndIndex)
@@ -218,7 +218,7 @@ namespace LogGenius.Modules.Timeline
             return FindEarliestKeyFrameIndexAfterTime(Time, 0, Section.KeyFrames.Count - 1);
         }
 
-        private void UpdateCanvas()
+        private void UpdateCurves()
         {
             PART_Canvas.Children.Clear();
             if (Section == null || this.Timeline == null)
@@ -239,10 +239,6 @@ namespace LogGenius.Modules.Timeline
                 return;
             }
 
-            double GetHorizontalByTime(DateTime Time)
-            {
-                return -Offset + (Time - InitialTime).TotalMilliseconds / Timeline.MillisecondPerPixel;
-            }
             double GetVerticalByValue(double Value)
             {
                 float PaddingTop = 10;
@@ -267,8 +263,8 @@ namespace LogGenius.Modules.Timeline
                 bool Finished = false;
                 foreach (PropertyRecord CurrentRecord in CurrentKeyFrame.Records)
                 {
-                    var X1 = GetHorizontalByTime(LastTime);
-                    var X2 = GetHorizontalByTime(CurrentKeyFrame.DateTime);
+                    var X1 = Timeline.GetHorizontalByTime(LastTime, Offset);
+                    var X2 = Timeline.GetHorizontalByTime(CurrentKeyFrame.DateTime, Offset);
                     var Y1 = GetVerticalByValue(LastRecord.Value);
                     var Y2 = GetVerticalByValue(CurrentRecord.Value);
                     PART_Canvas.Children.Add(
@@ -298,7 +294,7 @@ namespace LogGenius.Modules.Timeline
                 var CurrentKeyFrame = (KeyFrame)Section.KeyFrames[Index]!;
                 foreach (var CurrentRecord in CurrentKeyFrame.Records)
                 {
-                    var X = GetHorizontalByTime(CurrentKeyFrame.DateTime);
+                    var X = Timeline.GetHorizontalByTime(CurrentKeyFrame.DateTime, Offset);
                     var Y = GetVerticalByValue(CurrentRecord.Value);
                     var Button = new Button()
                     {

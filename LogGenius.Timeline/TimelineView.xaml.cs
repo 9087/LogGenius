@@ -1,8 +1,12 @@
-﻿using System.Globalization;
+﻿using Serilog;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Shapes;
 
 namespace LogGenius.Modules.Timeline
 {
@@ -47,7 +51,7 @@ namespace LogGenius.Modules.Timeline
                 typeof(TimelineView),
                 new PropertyMetadata(null, OnTimelineChanged));
 
-        public Timeline? Timeline
+        public Timeline Timeline
         {
             get => (Timeline)GetValue(TimelineProperty);
             set => SetValue(TimelineProperty, value);
@@ -55,6 +59,17 @@ namespace LogGenius.Modules.Timeline
 
         private static void OnTimelineChanged(DependencyObject Object, DependencyPropertyChangedEventArgs EventArgs)
         {
+            if (Object is TimelineView TimelineView)
+            {
+                if (EventArgs.OldValue is Timeline OldTimeline)
+                {
+                    OldTimeline.PropertyChanged -= TimelineView.OnTimelinePropertyChanged;
+                }
+                if (EventArgs.NewValue is Timeline NewTimeline)
+                {
+                    NewTimeline.PropertyChanged += TimelineView.OnTimelinePropertyChanged;
+                }
+            }
         }
 
         public static readonly DependencyProperty HeaderWidthProperty =
@@ -100,9 +115,76 @@ namespace LogGenius.Modules.Timeline
             set => SetValue(MaxHeaderWidthProperty, value);
         }
 
+        public double Offset => PART_ScrollBar.Value;
+
         public TimelineView()
         {
             InitializeComponent();
+        }
+
+        ~TimelineView()
+        {
+            if (Timeline != null)
+            {
+                Timeline.PropertyChanged -= OnTimelinePropertyChanged;
+            }
+        }
+
+        private void OnTimelinePropertyChanged(object? Sender, System.ComponentModel.PropertyChangedEventArgs EventArgs)
+        {
+            if (EventArgs.PropertyName == nameof(Timeline.MillisecondPerPixel))
+            {
+                UpdateRuler();
+            }
+        }
+
+        protected void UpdateRuler()
+        {
+            this.PART_Ruler.Children.Clear();
+            var InitialMillisecond = Timeline.GetMillisecondByHorizontal(0, Offset);
+            var Current = (int)(InitialMillisecond / Timeline.RulerMillisecondSpacing);
+            double Horizontal;
+            do
+            {
+                var Millisecond = (double)Current * Timeline.RulerMillisecondSpacing;
+                Horizontal = Timeline.GetHorizontalByMillisecond(Millisecond, Offset);
+                double ShortRulerMarkPercentHeight = 0.2;
+                double LongRulerMarkPercentHeight = 0.3;
+                if (Current != 0)
+                {
+                    var RulerMarkPercentHeight = Current % Timeline.RulerCountPerTimeTextBlock == 0
+                        ? LongRulerMarkPercentHeight
+                        : ShortRulerMarkPercentHeight;
+                    this.PART_Ruler.Children.Add(new Line()
+                    {
+                        X1 = Horizontal,
+                        X2 = Horizontal,
+                        Y1 = this.PART_Ruler.ActualHeight * (1 - RulerMarkPercentHeight),
+                        Y2 = this.PART_Ruler.ActualHeight * 1.0,
+                        StrokeThickness = 1,
+                        Stroke = Brushes.Black,
+                    });
+                    
+                    if (Current % Timeline.RulerCountPerTimeTextBlock == 0)
+                    {
+                        var TimeSpan = new TimeSpan(0, 0, 0, 0, (int)Millisecond);
+                        var TimeTextBlock = new TextBlock()
+                        {
+                            Text = $"{(int)TimeSpan.TotalMinutes}.{TimeSpan.Seconds:D2}:{TimeSpan.Milliseconds:D3}",
+                            TextAlignment = TextAlignment.Left,
+                            FontSize = 10,
+                            VerticalAlignment = VerticalAlignment.Center,
+                        };
+                        TimeTextBlock.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+                        TimeTextBlock.Arrange(new Rect(0, 0, TimeTextBlock.DesiredSize.Width, TimeTextBlock.DesiredSize.Height));
+
+                        this.PART_Ruler.Children.Add(TimeTextBlock);
+                        Canvas.SetLeft(TimeTextBlock, Horizontal - TimeTextBlock.ActualWidth * 0.5);
+                        Canvas.SetTop(TimeTextBlock, this.PART_Ruler.ActualHeight * (1 - RulerMarkPercentHeight) * 0.5 - TimeTextBlock.ActualHeight * 0.5);
+                    }
+                }
+                Current += 1;
+            } while (Horizontal < this.PART_Ruler.ActualWidth);
         }
 
         private void OnScrollBarValueChanged(object Sender, RoutedPropertyChangedEventArgs<double> EventArgs)
@@ -119,6 +201,13 @@ namespace LogGenius.Modules.Timeline
                     SectionView.Invalidate();
                 }
             }
+            UpdateRuler();
+        }
+
+        protected override void OnRenderSizeChanged(SizeChangedInfo SizeInfo)
+        {
+            base.OnRenderSizeChanged(SizeInfo);
+            UpdateRuler();
         }
 
         private void OnListViewSelectionChanged(object Sender, SelectionChangedEventArgs EventArgs)
@@ -141,6 +230,11 @@ namespace LogGenius.Modules.Timeline
                     Section.HeaderHeight = Section.MinHeaderHeight;
                 }
             }
+        }
+
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
         }
     }
 }

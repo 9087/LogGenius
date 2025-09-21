@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 
 namespace LogGenius.Modules.Timeline
 {
@@ -25,13 +26,17 @@ namespace LogGenius.Modules.Timeline
 
         public double TotalMilliseconds => Duration.TotalMilliseconds;
 
-        static float[] MillisecondPerPixelChoices = new float[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 50, 100, 200, 500, 1000 };
-
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(MillisecondPerPixel))]
+        [NotifyPropertyChangedFor(nameof(RulerMillisecondSpacing))]
+        [NotifyPropertyChangedFor(nameof(RulerCountPerTimeTextBlock))]
         private int _MillisecondPerPixelIndex = 1;
 
-        public float MillisecondPerPixel => MillisecondPerPixelChoices[MillisecondPerPixelIndex];
+        public float MillisecondPerPixel => TimelineModule.Instance.TimelineScaleChoices[MillisecondPerPixelIndex - 1].MillisecondPerPixel;
+
+        public float RulerMillisecondSpacing => TimelineModule.Instance.TimelineScaleChoices[MillisecondPerPixelIndex - 1].RulerMillisecondSpacing;
+
+        public int RulerCountPerTimeTextBlock => TimelineModule.Instance.TimelineScaleChoices[MillisecondPerPixelIndex - 1].RulerCountPerTimeTextBlock;
 
         public PropertyIdentity? FindIdentity(string Name)
         {
@@ -73,6 +78,30 @@ namespace LogGenius.Modules.Timeline
                 InitialTime = Time;
             }
             CurrentTime = Time;
+        }
+
+        public double GetHorizontalByMillisecond(double Millisecond, double Offset)
+        {
+            Debug.Assert(InitialTime != null);
+            return -Offset + Millisecond / this.MillisecondPerPixel;
+        }
+
+        public double GetHorizontalByTime(DateTime Time, double Offset)
+        {
+            Debug.Assert(InitialTime != null);
+            return GetHorizontalByMillisecond((Time - (DateTime)InitialTime).TotalMilliseconds, Offset);
+        }
+
+        public double GetMillisecondByHorizontal(double Horizontal, double Offset)
+        {
+            Debug.Assert(InitialTime != null);
+            return (Horizontal + Offset) * this.MillisecondPerPixel;
+        }
+
+        public DateTime? GetTimeByHorizontal(double Horizontal, double Offset)
+        {
+            Debug.Assert(InitialTime != null);
+            return ((DateTime) InitialTime).AddMilliseconds(GetMillisecondByHorizontal(Horizontal, Offset));
         }
     }
 }
