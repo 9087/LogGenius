@@ -37,6 +37,17 @@ namespace LogGenius.Modules.Entries
             FullEntriesViewSource.Source = Session.Entries;
             FilteredEntriesViewSource.Source = Session.Entries;
             FilteredEntriesViewSource.Filter += OnFiltering;
+            Session.EntriesCleared += OnEntriesCleared;
+        }
+
+        ~EntriesModule()
+        {
+            Session.EntriesCleared -= OnEntriesCleared;
+        }
+
+        private void OnEntriesCleared()
+        {
+            CancelExcluding();
         }
 
         [RelayCommand]
