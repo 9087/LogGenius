@@ -133,25 +133,77 @@
               MinWidth="0"
               IsChecked="{Binding IsRegex}"
               />
-            <ToggleButton
-              Grid.Column="8"
-              FontSize="{DynamicResource FontSize}"
-              >
-              <ToggleButton.Content>
-                <Binding Path="ExcludingIndex" Converter="{StaticResource GetTitleTextFromExcludingIndex}" Mode="OneWay"/>
-              </ToggleButton.Content>
-              <ToggleButton.IsChecked>
-                <Binding Path="ExcludingIndex" Converter="{StaticResource GetToggleStateFromExcludingIndex}" Mode="OneWay"/>
-              </ToggleButton.IsChecked>
-              <i:Interaction.Triggers>
-                <i:EventTrigger EventName="Checked">
-                  <i:InvokeCommandAction Command="{Binding ExcludeExistingCommand}"/>
-                </i:EventTrigger>
-                <i:EventTrigger EventName="Unchecked">
-                  <i:InvokeCommandAction Command="{Binding CancelExcludingCommand}"/>
-                </i:EventTrigger>
-              </i:Interaction.Triggers>
-            </ToggleButton>
+            <Grid
+              Grid.Column="8">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+              <ToggleButton
+                Grid.Column="0"
+                FontSize="{DynamicResource FontSize}"
+                x:Name="PART_ExcludeButton"
+                >
+                <ToggleButton.Content>
+                  <Binding Path="ExcludingIndex" Converter="{StaticResource GetTitleTextFromExcludingIndex}" Mode="OneWay"/>
+                </ToggleButton.Content>
+                <ToggleButton.IsChecked>
+                  <Binding Path="ExcludingIndex" Converter="{StaticResource GetToggleStateFromExcludingIndex}" Mode="OneWay"/>
+                </ToggleButton.IsChecked>
+                <i:Interaction.Triggers>
+                  <i:EventTrigger EventName="Checked">
+                    <i:InvokeCommandAction Command="{Binding ExcludeExistingCommand}"/>
+                  </i:EventTrigger>
+                  <i:EventTrigger EventName="Unchecked">
+                    <i:InvokeCommandAction Command="{Binding CancelExcludingCommand}"/>
+                  </i:EventTrigger>
+                </i:Interaction.Triggers>
+                <ToggleButton.Style>
+                  <Style TargetType="ToggleButton" BasedOn="{StaticResource DefaultToggleButtonStyle}">
+                    <Style.Triggers>
+                      <DataTrigger Binding="{Binding IsExcluding}" Value="True" >
+                        <Setter Property="modernwpf:ControlHelper.CornerRadius" Value="2,0,0,2"/>
+                      </DataTrigger>
+                    </Style.Triggers>
+                  </Style>
+                </ToggleButton.Style>
+              </ToggleButton>
+              <Button
+                Grid.Column="1"
+                Background="{StaticResource ToggleButtonBackgroundChecked}"
+                Foreground="{StaticResource ToggleButtonForegroundChecked}"
+                Height="{Binding ActualHeight, ElementName=PART_ExcludeButton}"
+                Opacity="0.8"
+                >
+                <modernwpf:FontIcon
+                  Glyph="&#xE72C;"
+                  FontSize="{StaticResource FontSize}"
+                  />
+                <Button.Style>
+                  <Style TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
+                    <Setter Property="modernwpf:ControlHelper.CornerRadius" Value="0,2,2,0"/>
+                    <Style.Triggers>
+                      <DataTrigger Binding="{Binding IsExcluding}" Value="False" >
+                        <Setter Property="Visibility" Value="Hidden"/>
+                      </DataTrigger>
+                    </Style.Triggers>
+                  </Style>
+                </Button.Style>
+                <Button.Resources>
+                  <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="{Binding Color, Source={StaticResource ToggleButtonBackgroundCheckedPointerOver}}"/>
+                  <SolidColorBrush x:Key="ButtonBorderBrushPointerOver" Color="{Binding Color, Source={StaticResource ToggleButtonBorderBrushCheckedPointerOver}}"/>
+                  <SolidColorBrush x:Key="ButtonForegroundPointerOver" Color="{Binding Color, Source={StaticResource ToggleButtonForegroundCheckedPointerOver}}"/>
+                  <SolidColorBrush x:Key="ButtonBackgroundPressed" Color="{Binding Color, Source={StaticResource ToggleButtonBackgroundCheckedPressed}}"/>
+                  <SolidColorBrush x:Key="ButtonBorderBrushPressed" Color="{Binding Color, Source={StaticResource ToggleButtonBorderBrushCheckedPressed}}"/>
+                  <SolidColorBrush x:Key="ButtonForegroundPressed" Color="{Binding Color, Source={StaticResource ToggleButtonForegroundCheckedPressed}}"/>
+                </Button.Resources>
+                <i:Interaction.Triggers>
+                  <i:EventTrigger EventName="Click">
+                    <i:InvokeCommandAction Command="{Binding ReexcludeExistingCommand}"/>
+                  </i:EventTrigger>
+                </i:Interaction.Triggers>
+              </Button>
+            </Grid>
           </Grid>
         </Border>
         <LogGenius.Modules.Entries:EntryGrid

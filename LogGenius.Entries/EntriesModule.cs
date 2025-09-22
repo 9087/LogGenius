@@ -230,7 +230,10 @@ namespace LogGenius.Modules.Entries
         }
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(IsExcluding))]
         private int? _ExcludingIndex = null;
+
+        public bool IsExcluding => ExcludingIndex != null;
 
         [RelayCommand]
         public void ExcludeExisting()
@@ -239,6 +242,12 @@ namespace LogGenius.Modules.Entries
             {
                 return;
             }
+            ReexcludeExisting();
+        }
+
+        [RelayCommand]
+        public void ReexcludeExisting()
+        {
             ExcludingIndex = Session.Entries.Count - 1;
             FilteredEntriesViewSource.View.Refresh();
         }
