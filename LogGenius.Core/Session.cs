@@ -1,19 +1,64 @@
 ﻿using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
-using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
-using Serilog;
 
 namespace LogGenius.Core
 {
+    public class EntryObservableCollection : ObservableCollection<Entry>
+    {
+        public class BatchOperation : IDisposable
+        {
+            private EntryObservableCollection Collection;
+
+            public BatchOperation(EntryObservableCollection Collection)
+            {
+                Debug.Assert(Collection._BatchOperation == null);
+                this.Collection = Collection;
+                this.Collection._BatchOperation = this;
+            }
+
+            public void Dispose()
+            {
+                this.Collection.EndBatchOperation();
+            }
+        }
+
+        protected override void OnCollectionChanged(NotifyCollectionChangedEventArgs EventArgs)
+        {
+            if (_BatchOperation != null)
+            {
+                return;
+            }
+            base.OnCollectionChanged(EventArgs);
+        }
+
+        public BatchOperation BeginBatchOperation()
+        {
+            if (_BatchOperation != null)
+            {
+                throw new InvalidOperationException();
+            }
+            return new BatchOperation(this);
+        }
+
+        protected virtual void EndBatchOperation()
+        {
+            base.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            this._BatchOperation = null;
+        }
+
+        private BatchOperation? _BatchOperation = null;
+    }
+
     public partial class Session : ObservableObject
     {
         [ObservableProperty]
-        protected ObservableCollection<Entry> _Entries = new();
+        protected EntryObservableCollection _Entries = new();
 
         public int Interval => CoreModule.Instance.UpdateInterval;
 
@@ -123,10 +168,13 @@ namespace LogGenius.Core
 
         private void PushBackEntriesInMainThread(List<Entry> Entries)
         {
-            for (int I = 0; I < Entries.Count; I++)
+            using (var _ = new EntryObservableCollection.BatchOperation(this.Entries))
             {
-                Entries[I].Line = (uint)this.Entries.Count;
-                this.Entries.Add(Entries[I]);
+                for (int I = 0; I < Entries.Count; I++)
+                {
+                    Entries[I].Line = (uint)this.Entries.Count;
+                    this.Entries.Add(Entries[I]);
+                }
             }
             OnPropertyChanged(nameof(this.Entries));
             EntriesAdded?.Invoke(Entries);
