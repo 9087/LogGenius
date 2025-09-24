@@ -31,5 +31,9 @@ namespace LogGenius.Core
         [ObservableProperty]
         [Setting]
         private int _UpdateBufferSize = 1 << 24;
+
+        [ObservableProperty]
+        [Setting]
+        private int _BatchOperationThreshold = 50;
     }
 }

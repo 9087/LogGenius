@@ -168,7 +168,11 @@ namespace LogGenius.Core
 
         private void PushBackEntriesInMainThread(List<Entry> Entries)
         {
-            using (var _ = new EntryObservableCollection.BatchOperation(this.Entries))
+            using (
+                var _ = Entries.Count >= CoreModule.Instance.BatchOperationThreshold
+                    ? new EntryObservableCollection.BatchOperation(this.Entries)
+                    : null
+            )
             {
                 for (int I = 0; I < Entries.Count; I++)
                 {
