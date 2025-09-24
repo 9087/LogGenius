@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using LogGenius.Core;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -114,6 +115,19 @@ namespace LogGenius.Modules.Entries
             }
         }
 
+        public static readonly DependencyProperty SelectableStateEnabledProperty =
+            DependencyProperty.Register(
+                nameof(SelectableStateEnabled),
+                typeof(bool),
+                typeof(EntryView),
+                new PropertyMetadata(true));
+
+        public bool SelectableStateEnabled
+        {
+            get => (bool)GetValue(SelectableStateEnabledProperty);
+            set => SetValue(SelectableStateEnabledProperty, value);
+        }
+
         private class InlineInfo
         {
             public string Text { get; }
@@ -210,13 +224,14 @@ namespace LogGenius.Modules.Entries
 
         static TextBox? SelectableTextBox;
 
-        protected override void OnMouseDoubleClick(MouseButtonEventArgs e)
+        protected override void OnMouseDoubleClick(MouseButtonEventArgs EventArgs)
         {
-            base.OnMouseDoubleClick(e);
-            if (!e.Handled)
+            base.OnMouseDoubleClick(EventArgs);
+            if (!EventArgs.Handled && SelectableStateEnabled)
             {
                 DismissSelectableTextBox();
                 PopupSelectableTextBox();
+                EventArgs.Handled = true;
             }
         }
 
@@ -262,8 +277,8 @@ namespace LogGenius.Modules.Entries
             SelectableTextBox!.Text = Text;
             PART_TextBlock.Visibility = Visibility.Hidden;
             PART_PopupSlot.Children.Add(SelectableTextBox);
-            var Window = ModernWpf.VisualTree.FindAscendant<Window>(this);
-            Window.PreviewMouseDown += OnWindowPreviewMouseDown;
+            var Window = Manager.Instance.GetWindowItem<EntriesWindow>()?.Window;
+            Window!.PreviewMouseDown += OnWindowPreviewMouseDown;
             Mouse.Capture(SelectableTextBox);
         }
 
@@ -282,8 +297,8 @@ namespace LogGenius.Modules.Entries
             if (EntryView != null)
             {
                 Mouse.Capture(null);
-                var Window = ModernWpf.VisualTree.FindAscendant<Window>(EntryView);
-                Window.PreviewMouseDown -= EntryView.OnWindowPreviewMouseDown;
+                var Window = Manager.Instance.GetWindowItem<EntriesWindow>()?.Window;
+                Window!.PreviewMouseDown -= EntryView.OnWindowPreviewMouseDown;
                 EntryView.PART_PopupSlot.Children.Clear();
                 EntryView.PART_TextBlock.Visibility = Visibility.Visible;
             }

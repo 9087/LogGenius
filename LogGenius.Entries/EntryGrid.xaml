@@ -10,7 +10,7 @@
   xmlns:LogGenius.Modules.Entries="clr-namespace:LogGenius.Modules.Entries"
   mc:Ignorable="d"
   d:DesignHeight="450" d:DesignWidth="800"
-  x:Name="CONTROL">
+  x:Name="THIS_EntryGrid">
   <UserControl.Resources>
     <LogGenius.Modules.Entries:GetEntryStyleForegroundFromEntry x:Key="GetEntryStyleForegroundFromEntry"/>
     <LogGenius.Modules.Entries:GetEntryStyleBackgroundFromEntry x:Key="GetEntryStyleBackgroundFromEntry"/>
@@ -304,9 +304,10 @@
               Text="{Binding Text}"
               FontFamily="pack://application:,,,/Resources/Fonts/MapleMono-Regular.ttf#Maple Mono"
               FontSize="{DynamicResource FontSize}"
-              HighlightText="{Binding HighlightText, ElementName=CONTROL}"
-              HighlightTextCaseSensitiveEnabled="{Binding HighlightTextCaseSensitiveEnabled, ElementName=CONTROL}"
-              HighlightTextRegexEnabled="{Binding HighlightTextRegexEnabled, ElementName=CONTROL}"
+              HighlightText="{Binding HighlightText, ElementName=THIS_EntryGrid}"
+              HighlightTextCaseSensitiveEnabled="{Binding HighlightTextCaseSensitiveEnabled, ElementName=THIS_EntryGrid}"
+              HighlightTextRegexEnabled="{Binding HighlightTextRegexEnabled, ElementName=THIS_EntryGrid}"
+              SelectableStateEnabled="{Binding SelectableStateEnabled, ElementName=THIS_EntryGrid}"
               >
               <LogGenius.Modules.Entries:EntryView.HighlightTextBackgroundBrush>
                 <SolidColorBrush Color="{Binding Source={StaticResource TextControlSelectionHighlightColor}, Path=Color}"/>

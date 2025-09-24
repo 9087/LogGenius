@@ -84,6 +84,19 @@ namespace LogGenius.Modules.Entries
 
         #endregion
 
+        public static readonly DependencyProperty SelectableStateEnabledProperty =
+            DependencyProperty.Register(
+                nameof(SelectableStateEnabled),
+                typeof(bool),
+                typeof(EntryGrid),
+                new PropertyMetadata(true));
+
+        public bool SelectableStateEnabled
+        {
+            get => (bool)GetValue(SelectableStateEnabledProperty);
+            set => SetValue(SelectableStateEnabledProperty, value);
+        }
+
         public event EntryDoubleClickedEventHandler? EntryDoubleClicked;
 
         private bool IsScrolledToEnd = true;

@@ -38,6 +38,7 @@
         Grid.Row="1"
         HighlightText="{x:Null}"
         DataContext="{Binding FullEntriesViewSource.View}"
+        SelectableStateEnabled="True"
         />
       <GridSplitter
         Grid.Row="2"
@@ -214,6 +215,7 @@
           HighlightTextRegexEnabled="{Binding DataContext.IsRegex, RelativeSource={RelativeSource AncestorType=Window}}"
           DataContext="{Binding FilteredEntriesViewSource.View}"
           EntryDoubleClicked="OnFilteredEntryGridEntryDoubleClicked"
+          SelectableStateEnabled="False"
           />
       </Grid>
     </Grid>

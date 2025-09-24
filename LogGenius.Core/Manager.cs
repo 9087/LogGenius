@@ -98,6 +98,11 @@ namespace LogGenius.Core
             WindowItems.Add(WindowItem);
         }
 
+        public WindowItem? GetWindowItem<T>()
+        {
+            return GetWindowItem(typeof(T));
+        }
+
         public WindowItem? GetWindowItem(Type WindowType)
         {
             return WindowItems.Find((X) => X.WindowType == WindowType);
