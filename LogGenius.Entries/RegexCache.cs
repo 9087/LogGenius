@@ -27,6 +27,17 @@ namespace LogGenius.Modules.Entries
                 Cache.CaseSensitiveEnabled = CaseSensitiveEnabled;
                 try
                 {
+                    int StartIndex = 0;
+                    int EndIndex = Pattern.Length;
+                    while (StartIndex < EndIndex && Pattern[StartIndex] == '|')
+                    {
+                        StartIndex++;
+                    }
+                    while (StartIndex < EndIndex && Pattern[EndIndex - 1] == '|' && Pattern[EndIndex - 2] != '\\')
+                    {
+                        EndIndex--;
+                    }
+                    Pattern = Pattern.Substring(StartIndex, EndIndex - StartIndex);
                     Cache.Regex = new(Pattern, CaseSensitiveEnabled ? RegexOptions.None : RegexOptions.IgnoreCase);
                 }
                 catch (System.Text.RegularExpressions.RegexParseException)
