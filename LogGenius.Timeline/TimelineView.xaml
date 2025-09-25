@@ -13,6 +13,7 @@
   >
   <UserControl.Resources>
     <LogGenius.Modules.Timeline:GetTimelineViewScrollBarMaximumValue x:Key="GetTimelineViewScrollBarMaximumValue"/>
+    <LogGenius.Modules.Timeline:GetTutorialVisiblityFromSectionCount x:Key="GetTutorialVisiblityFromSectionCount"/>
   </UserControl.Resources>
   <Grid>
     <Grid.RowDefinitions>
@@ -192,6 +193,37 @@
         HorizontalAlignment="Right"
         DragDelta="OnHorizontalThumbDragDelta"
         />
+    </Grid>
+    <Grid
+      Grid.Row="1"
+      Grid.RowSpan="3"
+      Visibility="{Binding Timeline.Sections.Count, Converter={StaticResource GetTutorialVisiblityFromSectionCount}, ElementName=THIS_TimelineView}"
+      >
+      <Border
+        Background="Gray" Opacity="0.5">
+        <Grid
+          VerticalAlignment="Center"
+          HorizontalAlignment="Center">
+          <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition Height="30"/>
+          </Grid.RowDefinitions>
+          <TextBlock
+            Grid.Row="0"
+            FontSize="20"
+            Text="Build Timeline with Format:">
+          </TextBlock>
+          <TextBlock
+            Grid.Row="1"
+            FontSize="52"
+            Text="{}{YourProperty=0.618}"
+            MinWidth="0"
+            Width="auto"
+            >
+          </TextBlock>
+        </Grid>
+      </Border>
     </Grid>
   </Grid>
 </UserControl>

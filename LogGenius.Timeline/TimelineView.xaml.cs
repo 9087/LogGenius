@@ -42,6 +42,23 @@ namespace LogGenius.Modules.Timeline
         }
     }
 
+    public class GetTutorialVisiblityFromSectionCount : IValueConverter
+    {
+        public object Convert(object Value, Type TargetType, object Parameter, CultureInfo Culture)
+        {
+            if (Value is int Integer)
+            {
+                return Integer == 0 ? Visibility.Visible : Visibility.Collapsed;
+            }
+            return Visibility.Collapsed;
+        }
+
+        public object ConvertBack(object Value, Type TargetType, object Parameter, CultureInfo Culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public partial class TimelineView : UserControl
     {
         public static readonly DependencyProperty TimelineProperty =
