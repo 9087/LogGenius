@@ -24,6 +24,7 @@
       </Trigger>
     </Style.Triggers>
   </Style>
+  <LogGenius.Core:GetVisibilityFromBoolean x:Key="GetVisibilityFromBoolean"/>
   <Style TargetType="LogGenius.Core:Frame">
     <Setter Property="Template">
       <Setter.Value>
@@ -77,6 +78,12 @@
                       <Setter Property="Command" Value="{Binding OpenWindowCommand}"/>
                     </Style>
                   </MenuItem.ItemContainerStyle>
+                </MenuItem>
+                <MenuItem
+                  Header="Debug"
+                  Visibility="{Binding Source={x:Static LogGenius.Core:Manager.Instance}, Path=IsDebugMode, Converter={StaticResource GetVisibilityFromBoolean}}"
+                  >
+                  <MenuItem Header="Debug Entries" Command="{Binding Session.RequestDebugEntriesCommand, Source={x:Static LogGenius.Core:Manager.Instance}}"/>
                 </MenuItem>
               </Menu>
               <TextBlock

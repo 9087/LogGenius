@@ -28,6 +28,12 @@ namespace LogGenius.Core
         [ObservableProperty]
         public Session _Session = new Session();
 
+#if DEBUG
+        public bool IsDebugMode => true;
+#else
+        public bool IsDebugMode => false;
+#endif
+
         protected Manager()
         {
         }

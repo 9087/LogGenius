@@ -158,6 +158,10 @@ namespace LogGenius.Modules.Timeline
         protected void UpdateRuler()
         {
             this.PART_Ruler.Children.Clear();
+            if (!Timeline.HasInitialTime)
+            {
+                return;
+            }
             var InitialMillisecond = Timeline.GetMillisecondByHorizontal(0, Offset);
             var Current = (int)(InitialMillisecond / Timeline.RulerMillisecondSpacing);
             double Horizontal;

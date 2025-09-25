@@ -243,6 +243,46 @@ namespace LogGenius.Core
                 {
                     await Task.Delay(Interval);
                 }
+                await TryGenerateDebugEntries();
+            }
+        }
+
+        private object IsDebugEntriesRequestedLock = new();
+        private bool IsDebugEntriesRequested = false;
+
+        [RelayCommand]
+        public void RequestDebugEntries()
+        {
+            lock(IsDebugEntriesRequestedLock)
+            {
+                if (!IsDebugEntriesRequested)
+                {
+                    IsDebugEntriesRequested = true;
+                }
+            }
+        }
+
+        private async Task TryGenerateDebugEntries()
+        {
+            lock (IsDebugEntriesRequestedLock)
+            {
+                if (!IsDebugEntriesRequested)
+                {
+                    return;
+                }
+                IsDebugEntriesRequested = false;
+            }
+            int FrameRate = 60;
+            int Seconds = 60;
+            int EntryCountPerOneFrame = 30;
+            for (int FrameIndex = 0; FrameIndex < FrameRate * Seconds; FrameIndex++)
+            {
+                for (int Index = 0; Index < EntryCountPerOneFrame; Index++)
+                {
+                    var Text = $"{DateTime.Now.ToString("[yyyy.MM.dd-hh.mm.ss:fff][0] ") + "{A=" + Index + "}"}";
+                    PushBackEntries(new List<Entry> { new(Text) });
+                }
+                await Task.Delay(Interval);
             }
         }
     }

@@ -15,7 +15,10 @@ namespace LogGenius.Modules.Timeline
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(Duration))]
         [NotifyPropertyChangedFor(nameof(TotalMilliseconds))]
+        [NotifyPropertyChangedFor(nameof(HasInitialTime))]
         private DateTime? _InitialTime = null;
+
+        public bool HasInitialTime => InitialTime != null;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(Duration))]
