@@ -76,6 +76,8 @@ namespace LogGenius.Core
 
         private CancellationTokenSource? UpdatingTaskCancellationTokenSource;
 
+        public Action<Entry>? EntryCreated { get; set; }
+
         [ObservableProperty]
         private string? _FilePath = null;
 
@@ -202,6 +204,10 @@ namespace LogGenius.Core
 
         private void PushBackEntries(List<Entry> Entries)
         {
+            foreach (var Entry in Entries)
+            {
+                EntryCreated?.Invoke(Entry);
+            }
             _ = Application.Current.Dispatcher.InvokeAsync(() => PushBackEntriesInMainThread(Entries));
         }
 
@@ -273,7 +279,7 @@ namespace LogGenius.Core
                 IsDebugEntriesRequested = false;
             }
             int FrameRate = 60;
-            int Seconds = 60;
+            int Seconds = 5;
             int EntryCountPerOneFrame = 30;
             for (int FrameIndex = 0; FrameIndex < FrameRate * Seconds; FrameIndex++)
             {
@@ -282,8 +288,8 @@ namespace LogGenius.Core
                     var Text = $"{DateTime.Now.ToString("[yyyy.MM.dd-hh.mm.ss:fff][0] ") + "{A=" + Index + "}"}";
                     PushBackEntries(new List<Entry> { new(Text) });
                 }
-                await Task.Delay(Interval);
             }
+            await Task.Delay(Interval);
         }
     }
 }

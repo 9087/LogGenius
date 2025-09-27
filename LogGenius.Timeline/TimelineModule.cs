@@ -51,6 +51,7 @@ namespace LogGenius.Modules.Timeline
         {
             Session.EntriesAdded += OnEntriesAdded;
             Session.EntriesCleared += OnEntriesCleared;
+            Session.EntryCreated += OnEntryCreated;
         }
 
         private void OnEntriesAdded(List<Entry> Entries)
@@ -65,7 +66,7 @@ namespace LogGenius.Modules.Timeline
                     continue;
                 }
                 Timeline.UpdateTime(HeaderInfo.DateTime);
-                var Records = Entry.GetRecords(this.Timeline, NewIdentities);
+                var Records = Entry.GetTimelineRecords(this.Timeline, NewIdentities);
                 if (Records == null || Records.Count == 0)
                 {
                     continue;
@@ -80,6 +81,11 @@ namespace LogGenius.Modules.Timeline
         private void OnEntriesCleared()
         {
             Timeline = new();
+        }
+
+        private void OnEntryCreated(Entry Entry)
+        {
+            Entry.GetHeaderInfo();
         }
     }
 }

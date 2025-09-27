@@ -33,7 +33,14 @@ namespace LogGenius.Core
             return MetaData;
         }
 
-        public T? GetMetaData<T>() where T : class, new()
+        public T AddMetaData<T>(T MetaData) where T : class
+        {
+            Debug.Assert(!MetaDatas.ContainsKey(typeof(T)));
+            MetaDatas.Add(typeof(T), MetaData);
+            return MetaData;
+        }
+
+        public T? GetMetaData<T>() where T : class
         {
             if (MetaDatas.TryGetValue(typeof(T), out var MetaData))
             {
