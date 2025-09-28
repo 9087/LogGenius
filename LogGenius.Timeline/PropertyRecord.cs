@@ -6,20 +6,26 @@ namespace LogGenius.Modules.Timeline
     {
         public Entry Entry { get; }
 
-        public PropertyIdentity Identity { get; }
+        public PropertyIdentity? _Identity = null;
+
+        public PropertyIdentity Identity => _Identity!;
 
         public double Value { get; }
 
-        public PropertyRecord(Entry Entry, PropertyIdentity Identity, double Value)
+        public PropertyRecord(Entry Entry, double Value)
         {
             this.Entry = Entry;
-            this.Identity = Identity;
             this.Value = Value;
         }
 
         public override string ToString()
         {
             return $"{Identity}{Value}";
+        }
+
+        public void SetIdentity(PropertyIdentity Identity)
+        {
+            this._Identity = Identity;
         }
     }
 }

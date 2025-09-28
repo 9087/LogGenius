@@ -56,24 +56,25 @@ namespace LogGenius.Modules.Timeline
 
         private void OnEntriesAdded(List<Entry> Entries)
         {
-            Dictionary<string, PropertyIdentity> NewIdentities = new();
             foreach (var Entry in Entries)
             {
-                NewIdentities.Clear();
                 var HeaderInfo = Entry.GetHeaderInfo();
                 if (HeaderInfo == null)
                 {
                     continue;
                 }
                 Timeline.UpdateTime(HeaderInfo.DateTime);
-                var Records = Entry.GetTimelineRecords(this.Timeline, NewIdentities);
-                if (Records == null || Records.Count == 0)
+                var RecordLookups = Entry.GetTimelineRecords();
+                if (RecordLookups == null || RecordLookups.Count == 0)
                 {
                     continue;
                 }
-                foreach (var Record in Records)
+                foreach (var (Name, Records) in RecordLookups)
                 {
-                    Timeline.AddRecord(HeaderInfo.DateTime, Record);
+                    foreach (var Record in Records)
+                    {
+                        Timeline.AddRecord(Name, HeaderInfo.DateTime, Record);
+                    }
                 }
             }
         }
@@ -86,6 +87,7 @@ namespace LogGenius.Modules.Timeline
         private void OnEntryCreated(Entry Entry)
         {
             Entry.GetHeaderInfo();
+            Entry.GetTimelineRecords();
         }
     }
 }

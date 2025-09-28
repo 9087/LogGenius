@@ -16,9 +16,9 @@ namespace LogGenius.Modules.Timeline
 
     internal class TimelineRecordMetaData
     {
-        public List<PropertyRecord>? PropertyRecords { get; }
+        public Dictionary<string, List<PropertyRecord>>? PropertyRecords { get; }
 
-        public TimelineRecordMetaData(List<PropertyRecord>? propertyRecords)
+        public TimelineRecordMetaData(Dictionary<string, List<PropertyRecord>>? propertyRecords)
         {
             PropertyRecords = propertyRecords;
         }
@@ -60,42 +60,32 @@ namespace LogGenius.Modules.Timeline
             return null;
         }
 
-        public static List<PropertyRecord>? GetTimelineRecords(this Entry Entry, Timeline Timeline, Dictionary<string, PropertyIdentity> NewIdentities)
+        public static Dictionary<string, List<PropertyRecord>>? GetTimelineRecords(this Entry Entry)
         {
             var TimelineRecordMetaData = Entry.GetMetaData<TimelineRecordMetaData>();
             if (TimelineRecordMetaData != null)
             {
                 return TimelineRecordMetaData.PropertyRecords;
             }
-
-            List<PropertyRecord>? Records = null;
+            Dictionary<string, List<PropertyRecord>>? RecordLookups = null;
             var Matches = PropertyRecordPattern.Matches(Entry.Text);
             foreach (Match Match in Matches)
             {
-                Records ??= new();
+                RecordLookups ??= new();
                 var Name = Match.Groups[1].Value.Trim();
                 if (!double.TryParse(Match.Groups[2].Value.Trim(), out var Value))
                 {
                     continue;
                 }
-                var Identity = Timeline.FindIdentity(Name);
-                if (Identity == null)
+                var NewRecord = new PropertyRecord(Entry, Value);
+                if (!RecordLookups.ContainsKey(Name))
                 {
-                    if (!NewIdentities.TryGetValue(Name, out Identity))
-                    {
-                        Identity = new PropertyIdentity(Name);
-                        NewIdentities.Add(Name, Identity);
-                    }
+                    RecordLookups.Add(Name, new());
                 }
-                var NewRecord = new PropertyRecord(
-                    Entry,
-                    Identity,
-                    Value
-                );
-                Records.Add(NewRecord);
+                RecordLookups[Name].Add(NewRecord);
             }
-            Entry.AddMetaData(new TimelineRecordMetaData(Records));
-            return Records;
+            Entry.AddMetaData(new TimelineRecordMetaData(RecordLookups));
+            return RecordLookups;
         }
     }
 }

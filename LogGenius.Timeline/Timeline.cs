@@ -64,8 +64,10 @@ namespace LogGenius.Modules.Timeline
             return Found;
         }
 
-        public void AddRecord(DateTime DateTime, PropertyRecord Record)
+        public void AddRecord(string Name, DateTime DateTime, PropertyRecord Record)
         {
+            var Identity = FindOrAddIdentity(Name);
+            Record.SetIdentity(Identity);
             if (!SectionLookupTable.ContainsKey(Record.Identity))
             {
                 AddIdentity(Record.Identity);
