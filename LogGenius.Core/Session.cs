@@ -279,15 +279,17 @@ namespace LogGenius.Core
                 IsDebugEntriesRequested = false;
             }
             int FrameRate = 60;
-            int Seconds = 5;
-            int EntryCountPerOneFrame = 30;
+            int Seconds = 20;
+            int EntryCountPerOneFrame = 60;
             for (int FrameIndex = 0; FrameIndex < FrameRate * Seconds; FrameIndex++)
             {
+                List<Entry> Entries = new();
                 for (int Index = 0; Index < EntryCountPerOneFrame; Index++)
                 {
                     var Text = $"{DateTime.Now.ToString("[yyyy.MM.dd-hh.mm.ss:fff][0] ") + "{A=" + Index + "}"}";
-                    PushBackEntries(new List<Entry> { new(Text) });
+                    Entries.Add(new Entry(Text));
                 }
+                PushBackEntries(Entries);
             }
             await Task.Delay(Interval);
         }

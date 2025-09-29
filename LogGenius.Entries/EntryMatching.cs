@@ -1,34 +1,47 @@
 ﻿using LogGenius.Core;
-using System;
 
 namespace LogGenius.Modules.Entries
 {
-    public class EntryMatchingMetaData
+    public class EntryMatchingState
     {
-        public string? FilterPattern { get; set; }
+        public string FilterPattern = string.Empty;
 
-        public bool? IsCaseSensitive { get; set; }
-        
-        public bool? IsRegex { get; set; }
+        public bool IsCaseSensitive = false;
 
-        public bool? Result { get; set; }
+        public bool IsRegex = false;
 
-        public bool Test(Entry Entry, string FilterPattern, bool IsCaseSensitive, bool IsRegex)
+        public EntryMatchingState()
         {
-            if (this.FilterPattern == FilterPattern && this.IsCaseSensitive == IsCaseSensitive && this.IsRegex == IsRegex)
-            {
-                return (bool) Result!;
-            }
+        }
+
+        public EntryMatchingState(string FilterPattern, bool IsCaseSensitive, bool IsRegex)
+        {
             this.FilterPattern = FilterPattern;
             this.IsCaseSensitive = IsCaseSensitive;
             this.IsRegex = IsRegex;
-            if (string.IsNullOrEmpty(FilterPattern))
+        }
+    }
+
+    public class EntryMatchingMetaData
+    {
+        public EntryMatchingState? EntryMatchingState { get; set; }
+
+        public bool Result { get; set; } = true;
+
+        public bool Test(Entry Entry, EntryMatchingState EntryMatchingState)
+        {
+            if (this.EntryMatchingState == EntryMatchingState)
+            {
+                return (bool) Result!;
+            }
+            this.EntryMatchingState = EntryMatchingState;
+            if (string.IsNullOrEmpty(this.EntryMatchingState.FilterPattern))
             {
                 Result = false;
             }
-            else if (IsRegex)
+            else if (this.EntryMatchingState.IsRegex)
             {
-                var Regex = RegexCache.Get(FilterPattern, IsCaseSensitive);
+                var Regex = RegexCache.Get(this.EntryMatchingState.FilterPattern, this.EntryMatchingState.IsCaseSensitive);
                 if (Regex == null)
                 {
                     Result = false;
@@ -40,7 +53,7 @@ namespace LogGenius.Modules.Entries
             }
             else
             {
-                Result = Entry.Text.Contains(FilterPattern, IsCaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase);
+                Result = Entry.Text.Contains(this.EntryMatchingState.FilterPattern, this.EntryMatchingState.IsCaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase);
             }
             return (bool)Result!;
         }
@@ -48,9 +61,9 @@ namespace LogGenius.Modules.Entries
 
     public static class EntryMatching
     {
-        public static bool Test(this Entry Entry, string FilterPattern, bool IsCaseSensitive, bool IsRegex)
+        public static bool Test(this Entry Entry, EntryMatchingState EntryMatchingState)
         {
-            return Entry.GetOrAddMetaData<EntryMatchingMetaData>().Test(Entry, FilterPattern, IsCaseSensitive, IsRegex);
+            return Entry.GetOrAddMetaData<EntryMatchingMetaData>().Test(Entry, EntryMatchingState);
         }
     }
 }

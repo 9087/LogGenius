@@ -54,6 +54,13 @@ namespace LogGenius.Modules.Timeline
             Session.EntryCreated += OnEntryCreated;
         }
 
+        ~TimelineModule()
+        {
+            Session.EntriesAdded -= OnEntriesAdded;
+            Session.EntriesCleared -= OnEntriesCleared;
+            Session.EntryCreated -= OnEntryCreated;
+        }
+
         private void OnEntriesAdded(List<Entry> Entries)
         {
             foreach (var Entry in Entries)

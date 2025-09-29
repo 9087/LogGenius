@@ -38,7 +38,7 @@ namespace LogGenius.Modules.Entries
 
         public bool Test(Entry Entry)
         {
-            return Entry.Test(FilterPattern, IsCaseSensitive, IsRegex);
+            return Entry.Test(new(FilterPattern, IsCaseSensitive, IsRegex));
         }
     }
 

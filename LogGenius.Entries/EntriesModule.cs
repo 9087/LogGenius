@@ -38,11 +38,14 @@ namespace LogGenius.Modules.Entries
             FilteredEntriesViewSource.Source = Session.Entries;
             FilteredEntriesViewSource.Filter += OnFiltering;
             Session.EntriesCleared += OnEntriesCleared;
+            Session.EntryCreated += OnEntryCreated;
+            EntryMatchingState = new(FilterPattern, IsCaseSensitive, IsRegex);
         }
 
         ~EntriesModule()
         {
             Session.EntriesCleared -= OnEntriesCleared;
+            Session.EntryCreated -= OnEntryCreated;
         }
 
         private void OnEntriesCleared()
@@ -59,6 +62,17 @@ namespace LogGenius.Modules.Entries
         protected override void OnPropertyChanged(PropertyChangedEventArgs EventArgs)
         {
             base.OnPropertyChanged(EventArgs);
+            switch (EventArgs.PropertyName)
+            {
+                case nameof(FilterPattern):
+                case nameof(IsCaseSensitive):
+                case nameof(IsRegex):
+                    lock (EntryMatchingState)
+                    {
+                        EntryMatchingState = new(FilterPattern, IsCaseSensitive, IsRegex);
+                    }
+                    break;
+            }
             switch (EventArgs.PropertyName)
             {
                 case nameof(IsCaseSensitive):
@@ -80,7 +94,7 @@ namespace LogGenius.Modules.Entries
                         return;
                     }
                 }
-                e.Accepted = Entry.Test(FilterPattern, IsCaseSensitive, IsRegex);
+                e.Accepted = Entry.Test(EntryMatchingState);
             }
             else
             {
@@ -276,6 +290,16 @@ namespace LogGenius.Modules.Entries
         {
             ExcludingIndex = null;
             FilteredEntriesViewSource.View.Refresh();
+        }
+
+        private EntryMatchingState EntryMatchingState;
+
+        private void OnEntryCreated(Entry Entry)
+        {
+            lock (EntryMatchingState)
+            {
+                Entry.Test(EntryMatchingState);
+            }
         }
     }
 }
