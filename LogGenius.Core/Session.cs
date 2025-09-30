@@ -290,8 +290,8 @@ namespace LogGenius.Core
                     Entries.Add(new Entry(Text));
                 }
                 PushBackEntries(Entries);
+                await Task.Delay(Interval);
             }
-            await Task.Delay(Interval);
         }
     }
 }
