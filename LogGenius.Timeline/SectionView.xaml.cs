@@ -66,7 +66,7 @@ namespace LogGenius.Modules.Timeline
                     OldSection.RecordAdded -= SectionView.OnSectionRecordAdded;
                 }
                 SectionView.UpdateCurves();
-                if (EventArgs.OldValue is Section NewSection)
+                if (EventArgs.NewValue is Section NewSection)
                 {
                     NewSection.RecordAdded += SectionView.OnSectionRecordAdded;
                 }
@@ -218,7 +218,25 @@ namespace LogGenius.Modules.Timeline
             return FindEarliestKeyFrameIndexAfterTime(Time, 0, Section.KeyFrames.Count - 1);
         }
 
+        private Timer? UpdateCurvesWaitingTimer = null;
+        
         private void UpdateCurves()
+        {
+            if (UpdateCurvesWaitingTimer != null)
+            {
+                return;
+            }
+            UpdateCurvesWaitingTimer = new Timer(_ =>
+            {
+                Application.Current.Dispatcher.InvokeAsync(() =>
+                {
+                    UpdateCurvesInternal();
+                    this.UpdateCurvesWaitingTimer = null;
+                });
+            }, null, TimelineModule.Instance.CurveUpdateInterval, 0);
+        }
+
+        private void UpdateCurvesInternal()
         {
             PART_Canvas.Children.Clear();
             if (Section == null || this.Timeline == null)

@@ -47,6 +47,10 @@ namespace LogGenius.Modules.Timeline
             new(1000, 12000, 20),
         };
 
+        [ObservableProperty]
+        [Setting]
+        int _CurveUpdateInterval = 50;
+
         public TimelineModule(Session Session) : base(Session)
         {
             Session.EntriesAdded += OnEntriesAdded;
