@@ -6,13 +6,13 @@ using System.Windows.Shapes;
 
 namespace LogGenius.Modules.Timeline
 {
-    public partial class SectionView : UserControl
+    public partial class TrackView : UserControl
     {
         public static readonly DependencyProperty TimelineProperty =
             DependencyProperty.Register(
                 nameof(Timeline),
                 typeof(Timeline),
-                typeof(SectionView),
+                typeof(TrackView),
                 new PropertyMetadata(null, OnTimelineChanged));
 
         public Timeline? Timeline
@@ -23,15 +23,15 @@ namespace LogGenius.Modules.Timeline
 
         private static void OnTimelineChanged(DependencyObject Object, DependencyPropertyChangedEventArgs EventArgs)
         {
-            if (Object is SectionView SectionView)
+            if (Object is TrackView TrackView)
             {
                 if (EventArgs.OldValue is Timeline OldTimeline)
                 {
-                    OldTimeline.PropertyChanged -= SectionView.OnTimelinePropertyChanged;
+                    OldTimeline.PropertyChanged -= TrackView.OnTimelinePropertyChanged;
                 }
                 if (EventArgs.NewValue is Timeline NewTimeline)
                 {
-                    NewTimeline.PropertyChanged += SectionView.OnTimelinePropertyChanged;
+                    NewTimeline.PropertyChanged += TrackView.OnTimelinePropertyChanged;
                 }
             }
         }
@@ -44,31 +44,31 @@ namespace LogGenius.Modules.Timeline
             }
         }
 
-        public static readonly DependencyProperty SectionProperty =
+        public static readonly DependencyProperty TrackProperty =
             DependencyProperty.Register(
-                nameof(Section),
-                typeof(Section),
-                typeof(SectionView),
-                new PropertyMetadata(null, OnSectionChanged));
+                nameof(Track),
+                typeof(Track),
+                typeof(TrackView),
+                new PropertyMetadata(null, OnTrackChanged));
 
-        public Section? Section
+        public Track? Track
         {
-            get => (Section)GetValue(SectionProperty);
-            set => SetValue(SectionProperty, value);
+            get => (Track)GetValue(TrackProperty);
+            set => SetValue(TrackProperty, value);
         }
 
-        private static void OnSectionChanged(DependencyObject Object, DependencyPropertyChangedEventArgs EventArgs)
+        private static void OnTrackChanged(DependencyObject Object, DependencyPropertyChangedEventArgs EventArgs)
         {
-            if (Object is SectionView SectionView)
+            if (Object is TrackView TrackView)
             {
-                if (EventArgs.OldValue is Section OldSection)
+                if (EventArgs.OldValue is Track OldTrack)
                 {
-                    OldSection.RecordAdded -= SectionView.OnSectionRecordAdded;
+                    OldTrack.RecordAdded -= TrackView.OnTrackRecordAdded;
                 }
-                SectionView.UpdateCurves();
-                if (EventArgs.NewValue is Section NewSection)
+                TrackView.UpdateCurves();
+                if (EventArgs.NewValue is Track NewTrack)
                 {
-                    NewSection.RecordAdded += SectionView.OnSectionRecordAdded;
+                    NewTrack.RecordAdded += TrackView.OnTrackRecordAdded;
                 }
             }
         }
@@ -77,7 +77,7 @@ namespace LogGenius.Modules.Timeline
             DependencyProperty.Register(
                 nameof(Offset),
                 typeof(double),
-                typeof(SectionView),
+                typeof(TrackView),
                 new PropertyMetadata((double)0, OnOffsetChanged));
 
         public double Offset
@@ -88,9 +88,9 @@ namespace LogGenius.Modules.Timeline
 
         private static void OnOffsetChanged(DependencyObject Object, DependencyPropertyChangedEventArgs EventArgs)
         {
-            if (Object is SectionView SectionView)
+            if (Object is TrackView TrackView)
             {
-                SectionView.UpdateCurves();
+                TrackView.UpdateCurves();
             }
         }
 
@@ -98,7 +98,7 @@ namespace LogGenius.Modules.Timeline
             DependencyProperty.Register(
                 nameof(HeaderWidth),
                 typeof(double),
-                typeof(SectionView),
+                typeof(TrackView),
                 new PropertyMetadata(100.0, OnHeaderWidthChanged));
 
         public double? HeaderWidth
@@ -115,7 +115,7 @@ namespace LogGenius.Modules.Timeline
             DependencyProperty.Register(
                 nameof(HeaderHeight),
                 typeof(double),
-                typeof(SectionView),
+                typeof(TrackView),
                 new PropertyMetadata(60.0, OnHeaderHeightChanged));
 
         public double HeaderHeight
@@ -132,7 +132,7 @@ namespace LogGenius.Modules.Timeline
             DependencyProperty.Register(
                 nameof(MinHeaderHeight),
                 typeof(double),
-                typeof(SectionView),
+                typeof(TrackView),
                 new PropertyMetadata(30.0));
 
         public double MinHeaderHeight
@@ -145,7 +145,7 @@ namespace LogGenius.Modules.Timeline
             DependencyProperty.Register(
                 nameof(MaxHeaderHeight),
                 typeof(double),
-                typeof(SectionView),
+                typeof(TrackView),
                 new PropertyMetadata(800.0));
 
         public double MaxHeaderHeight
@@ -156,18 +156,18 @@ namespace LogGenius.Modules.Timeline
 
         private Style? RecordMarkButtonStyle;
 
-        public SectionView()
+        public TrackView()
         {
             InitializeComponent();
             RecordMarkButtonStyle = TryFindResource("RecordMarkButtonStyle") as Style;
         }
 
-        ~SectionView()
+        ~TrackView()
         {
-            if (Section != null)
+            if (Track != null)
             {
-                Section.RecordAdded -= OnSectionRecordAdded;
-                Section = null;
+                Track.RecordAdded -= OnTrackRecordAdded;
+                Track = null;
             }
             if (Timeline != null)
             {
@@ -176,7 +176,7 @@ namespace LogGenius.Modules.Timeline
             }
         }
 
-        protected void OnSectionRecordAdded(PropertyRecord Record)
+        protected void OnTrackRecordAdded(PropertyRecord Record)
         {
             UpdateCurves();
         }
@@ -199,7 +199,7 @@ namespace LogGenius.Modules.Timeline
                 return StartIndex;
             }
             var MiddleIndex = (StartIndex + EndIndex) / 2;
-            if (Section!.KeyFrames[MiddleIndex].DateTime < Time)
+            if (Track!.KeyFrames[MiddleIndex].DateTime < Time)
             {
                 return FindEarliestKeyFrameIndexAfterTime(Time, MiddleIndex + 1, EndIndex);
             }
@@ -211,11 +211,11 @@ namespace LogGenius.Modules.Timeline
 
         private int FindEarliestKeyFrameIndexAfterTime(DateTime Time)
         {
-            if (Section == null || Section.KeyFrames.Count == 0)
+            if (Track == null || Track.KeyFrames.Count == 0)
             {
                 return -1;
             }
-            return FindEarliestKeyFrameIndexAfterTime(Time, 0, Section.KeyFrames.Count - 1);
+            return FindEarliestKeyFrameIndexAfterTime(Time, 0, Track.KeyFrames.Count - 1);
         }
 
         private Timer? UpdateCurvesWaitingTimer = null;
@@ -239,12 +239,12 @@ namespace LogGenius.Modules.Timeline
         private void UpdateCurvesInternal()
         {
             PART_Canvas.Children.Clear();
-            if (Section == null || this.Timeline == null)
+            if (Track == null || this.Timeline == null)
             {
                 return;
             }
             var Timeline = (Timeline)this.Timeline!;
-            var Identity = (PropertyIdentity)Section.Identity!;
+            var Identity = (PropertyIdentity)Track.Identity!;
             var Lower = (double)Identity.Lower!;
             var Upper = (double)Identity.Upper!;
             var ValueLength = Upper - Lower;
@@ -269,14 +269,14 @@ namespace LogGenius.Modules.Timeline
             }
 
             int VisibleFirstIndex = Math.Max(0, EarliestKeyFrameIndex - 1);
-            int VisibleLastIndex = Section.KeyFrames.Count - 1;
+            int VisibleLastIndex = Track.KeyFrames.Count - 1;
 
             for (int Index = VisibleFirstIndex; Index < VisibleLastIndex; Index++)
             {
-                var PreviousKeyFrame = (KeyFrame)Section.KeyFrames[Index]!;
+                var PreviousKeyFrame = (KeyFrame)Track.KeyFrames[Index]!;
                 var LastTime = PreviousKeyFrame.DateTime;
                 var LastRecord = (PropertyRecord)PreviousKeyFrame.Records.Last()!;
-                var CurrentKeyFrame = (KeyFrame)Section.KeyFrames[Index + 1]!;
+                var CurrentKeyFrame = (KeyFrame)Track.KeyFrames[Index + 1]!;
 
                 bool Finished = false;
                 foreach (PropertyRecord CurrentRecord in CurrentKeyFrame.Records)
@@ -309,7 +309,7 @@ namespace LogGenius.Modules.Timeline
             VisibleLastIndex = Math.Max(VisibleLastIndex, VisibleFirstIndex);
             for (int Index = VisibleFirstIndex; Index <= VisibleLastIndex; Index++)
             {
-                var CurrentKeyFrame = (KeyFrame)Section.KeyFrames[Index]!;
+                var CurrentKeyFrame = (KeyFrame)Track.KeyFrames[Index]!;
                 foreach (var CurrentRecord in CurrentKeyFrame.Records)
                 {
                     var X = Timeline.GetHorizontalByTime(CurrentKeyFrame.DateTime, Offset);
@@ -338,9 +338,9 @@ namespace LogGenius.Modules.Timeline
 
         private void OnVerticalThumbMouseDoubleClicked(object Sender, System.Windows.Input.MouseButtonEventArgs EventArgs)
         {
-            if (Section != null)
+            if (Track != null)
             {
-                Section.HeaderHeight = Section.MaxHeaderHeight;
+                Track.HeaderHeight = Track.MaxHeaderHeight;
             }
         }
     }

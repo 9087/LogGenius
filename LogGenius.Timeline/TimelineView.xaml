@@ -13,7 +13,7 @@
   >
   <UserControl.Resources>
     <LogGenius.Modules.Timeline:GetTimelineViewScrollBarMaximumValue x:Key="GetTimelineViewScrollBarMaximumValue"/>
-    <LogGenius.Modules.Timeline:GetTutorialVisiblityFromSectionCount x:Key="GetTutorialVisiblityFromSectionCount"/>
+    <LogGenius.Modules.Timeline:GetTutorialVisiblityFromTrackCount x:Key="GetTutorialVisiblityFromTrackCount"/>
   </UserControl.Resources>
   <Grid>
     <Grid.RowDefinitions>
@@ -115,13 +115,46 @@
       x:Name="PART_ListView"
       Grid.Row="2"
       Grid.RowSpan="2"
-      ItemsSource="{Binding Timeline.Sections, ElementName=THIS_TimelineView}"
+      ItemsSource="{Binding Timeline.Tracks, ElementName=THIS_TimelineView}"
       ScrollViewer.HorizontalScrollBarVisibility="Hidden"
       VirtualizingPanel.ScrollUnit="Pixel"
       SelectionChanged="OnListViewSelectionChanged"
       BorderThickness="0,1,0,0"
       BorderBrush="{DynamicResource GridLinesBrush}"
       >
+      <ListView.Style>
+        <Style TargetType="ListView" BasedOn="{StaticResource DefaultListViewStyle}">
+          <Setter Property="Template">
+            <Setter.Value>
+              <ControlTemplate TargetType="ListView">
+                <Border
+                  x:Name="Bd"
+                  Background="{TemplateBinding Background}"
+                  BorderBrush="{TemplateBinding BorderBrush}"
+                  BorderThickness="{TemplateBinding BorderThickness}"
+                  SnapsToDevicePixels="true">
+                  <LogGenius.Modules.Timeline:TrackListViewScrollViewer
+                    Padding="{TemplateBinding Padding}"
+                    Focusable="false"
+                    HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
+                    VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}">
+                    <ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                  </LogGenius.Modules.Timeline:TrackListViewScrollViewer>
+                </Border>
+                <ControlTemplate.Triggers>
+                  <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                      <Condition Property="IsGrouping" Value="true" />
+                      <Condition Property="VirtualizingPanel.IsVirtualizingWhenGrouping" Value="false" />
+                    </MultiTrigger.Conditions>
+                    <Setter Property="ScrollViewer.CanContentScroll" Value="false" />
+                  </MultiTrigger>
+                </ControlTemplate.Triggers>
+              </ControlTemplate>
+            </Setter.Value>
+          </Setter>
+        </Style>
+      </ListView.Style>
       <ListView.ItemContainerStyle>
         <Style TargetType="ListViewItem" BasedOn="{StaticResource DefaultListViewItemStyle}">
           <Setter Property="Padding" Value="0"/>
@@ -133,8 +166,8 @@
       </ListView.ItemContainerStyle>
       <ListView.ItemTemplate>
         <DataTemplate>
-          <LogGenius.Modules.Timeline:SectionView
-            Section="{Binding}"
+          <LogGenius.Modules.Timeline:TrackView
+            Track="{Binding}"
             Timeline="{Binding Timeline, ElementName=THIS_TimelineView}"
             Offset="{Binding Value, ElementName=PART_ScrollBar}"
             HeaderWidth="{Binding HeaderWidth, ElementName=THIS_TimelineView}"
@@ -197,7 +230,7 @@
     <Grid
       Grid.Row="1"
       Grid.RowSpan="3"
-      Visibility="{Binding Timeline.Sections.Count, Converter={StaticResource GetTutorialVisiblityFromSectionCount}, ElementName=THIS_TimelineView}"
+      Visibility="{Binding Timeline.Tracks.Count, Converter={StaticResource GetTutorialVisiblityFromTrackCount}, ElementName=THIS_TimelineView}"
       >
       <Border
         Background="Gray" Opacity="0.5">

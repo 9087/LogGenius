@@ -7,10 +7,10 @@ namespace LogGenius.Modules.Timeline
     public partial class Timeline : ObservableObject
     {
         private List<PropertyIdentity> Identities = new();
-        private Dictionary<PropertyIdentity, Section> SectionLookupTable = new();
+        private Dictionary<PropertyIdentity, Track> TrackLookupTable = new();
 
         [ObservableProperty]
-        private ObservableCollection<Section> _Sections = new();
+        private ObservableCollection<Track> _Tracks = new();
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(Duration))]
@@ -49,9 +49,9 @@ namespace LogGenius.Modules.Timeline
         public void AddIdentity(PropertyIdentity Identity)
         {
             Identities.Add(Identity);
-            var NewSection = new Section(Identity);
-            SectionLookupTable.Add(Identity, NewSection);
-            Sections.Add(NewSection);
+            var NewTrack = new Track(Identity);
+            TrackLookupTable.Add(Identity, NewTrack);
+            Tracks.Add(NewTrack);
         }
 
         public PropertyIdentity FindOrAddIdentity(string Name)
@@ -68,12 +68,12 @@ namespace LogGenius.Modules.Timeline
         {
             var Identity = FindOrAddIdentity(Name);
             Record.SetIdentity(Identity);
-            if (!SectionLookupTable.ContainsKey(Record.Identity))
+            if (!TrackLookupTable.ContainsKey(Record.Identity))
             {
                 AddIdentity(Record.Identity);
             }
             Record.Identity.UpdateBound(Record);
-            this.SectionLookupTable[Record.Identity].AddRecord(DateTime, Record);
+            this.TrackLookupTable[Record.Identity].AddRecord(DateTime, Record);
         }
 
         public void UpdateTime(DateTime Time)

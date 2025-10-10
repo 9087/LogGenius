@@ -3,7 +3,7 @@ using System.Collections.ObjectModel;
 
 namespace LogGenius.Modules.Timeline
 {
-    public partial class Section : ObservableObject
+    public partial class Track : ObservableObject
     {
         [ObservableProperty]
         private ObservableCollection<KeyFrame> _KeyFrames = new();
@@ -19,7 +19,7 @@ namespace LogGenius.Modules.Timeline
 
         public double MaxHeaderHeight => 300.0;
 
-        public Section(PropertyIdentity Identity)
+        public Track(PropertyIdentity Identity)
         {
             this.Identity = Identity;
         }

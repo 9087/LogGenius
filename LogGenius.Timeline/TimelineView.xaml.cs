@@ -1,11 +1,9 @@
-﻿using Serilog;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 
 namespace LogGenius.Modules.Timeline
@@ -42,7 +40,7 @@ namespace LogGenius.Modules.Timeline
         }
     }
 
-    public class GetTutorialVisiblityFromSectionCount : IValueConverter
+    public class GetTutorialVisiblityFromTrackCount : IValueConverter
     {
         public object Convert(object Value, Type TargetType, object Parameter, CultureInfo Culture)
         {
@@ -56,6 +54,13 @@ namespace LogGenius.Modules.Timeline
         public object ConvertBack(object Value, Type TargetType, object Parameter, CultureInfo Culture)
         {
             throw new NotImplementedException();
+        }
+    }
+
+    public class TrackListViewScrollViewer : ModernWpf.Controls.ScrollViewerEx
+    {
+        protected override void OnMouseWheel(MouseWheelEventArgs e)
+        {
         }
     }
 
@@ -214,12 +219,12 @@ namespace LogGenius.Modules.Timeline
             {
                 return;
             }
-            foreach (var Section in this.Timeline.Sections)
+            foreach (var Track in this.Timeline.Tracks)
             {
-                if (PART_ListView.ItemContainerGenerator.ContainerFromItem(Section) is ListViewItem ListViewItem)
+                if (PART_ListView.ItemContainerGenerator.ContainerFromItem(Track) is ListViewItem ListViewItem)
                 {
-                    var SectionView = ModernWpf.VisualTree.FindDescendant<SectionView>(ListViewItem);
-                    SectionView.Invalidate();
+                    var TrackView = ModernWpf.VisualTree.FindDescendant<TrackView>(ListViewItem);
+                    TrackView.Invalidate();
                 }
             }
             UpdateRuler();
@@ -246,16 +251,22 @@ namespace LogGenius.Modules.Timeline
         {
             if (Timeline != null)
             {
-                foreach (var Section in Timeline.Sections)
+                foreach (var Track in Timeline.Tracks)
                 {
-                    Section.HeaderHeight = Section.MinHeaderHeight;
+                    Track.HeaderHeight = Track.MinHeaderHeight;
                 }
             }
         }
 
-        protected override void OnMouseMove(MouseEventArgs e)
+        protected override void OnMouseMove(MouseEventArgs EventArgs)
         {
-            base.OnMouseMove(e);
+            base.OnMouseMove(EventArgs);
+        }
+
+        protected override void OnMouseWheel(MouseWheelEventArgs EventArgs)
+        {
+            PART_ScrollBar.Value += -PART_ScrollBar.SmallChange * EventArgs.Delta;
+            base.OnMouseWheel(EventArgs);
         }
     }
 }
