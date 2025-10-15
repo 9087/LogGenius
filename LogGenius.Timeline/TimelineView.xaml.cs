@@ -203,10 +203,13 @@ namespace LogGenius.Modules.Timeline
                         };
                         TimeTextBlock.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
                         TimeTextBlock.Arrange(new Rect(0, 0, TimeTextBlock.DesiredSize.Width, TimeTextBlock.DesiredSize.Height));
+                        TimeTextBlock.RenderTransform = new TranslateTransform()
+                        {
+                            X = Horizontal - TimeTextBlock.ActualWidth * 0.5,
+                            Y = this.PART_Ruler.ActualHeight * (1 - RulerMarkPercentHeight) * 0.5 - TimeTextBlock.ActualHeight * 0.5,
+                        };
 
                         this.PART_Ruler.Children.Add(TimeTextBlock);
-                        Canvas.SetLeft(TimeTextBlock, Horizontal - TimeTextBlock.ActualWidth * 0.5);
-                        Canvas.SetTop(TimeTextBlock, this.PART_Ruler.ActualHeight * (1 - RulerMarkPercentHeight) * 0.5 - TimeTextBlock.ActualHeight * 0.5);
                     }
                 }
                 Current += 1;

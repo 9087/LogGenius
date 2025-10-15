@@ -54,6 +54,11 @@
           x:Name="PART_Canvas"
           ClipToBounds="True"
           />
+        <Canvas
+          Grid.Column="1"
+          x:Name="PART_ButtonCacheCanvas"
+          ClipToBounds="True"
+          />
         <Border
           Grid.Column="0"
           >

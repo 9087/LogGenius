@@ -278,7 +278,7 @@ namespace LogGenius.Core
                 }
                 IsDebugEntriesRequested = false;
             }
-            int FrameRate = 60;
+            int FrameRate = 5;
             int Seconds = 20;
             int EntryCountPerOneFrame = 60;
             for (int FrameIndex = 0; FrameIndex < FrameRate * Seconds; FrameIndex++)

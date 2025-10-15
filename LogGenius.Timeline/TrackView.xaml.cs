@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Ink;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
@@ -236,6 +237,8 @@ namespace LogGenius.Modules.Timeline
             }, null, TimelineModule.Instance.CurveUpdateInterval, 0);
         }
 
+        private List<Button> ButtonCache = new();
+
         private void UpdateCurvesInternal()
         {
             PART_Canvas.Children.Clear();
@@ -271,61 +274,146 @@ namespace LogGenius.Modules.Timeline
             int VisibleFirstIndex = Math.Max(0, EarliestKeyFrameIndex - 1);
             int VisibleLastIndex = Track.KeyFrames.Count - 1;
 
-            for (int Index = VisibleFirstIndex; Index < VisibleLastIndex; Index++)
-            {
-                var PreviousKeyFrame = (KeyFrame)Track.KeyFrames[Index]!;
-                var LastTime = PreviousKeyFrame.DateTime;
-                var LastRecord = (PropertyRecord)PreviousKeyFrame.Records.Last()!;
-                var CurrentKeyFrame = (KeyFrame)Track.KeyFrames[Index + 1]!;
+            bool UsePathGeometry = true;
+            bool UseEllipseGeometry = false;
 
-                bool Finished = false;
-                foreach (PropertyRecord CurrentRecord in CurrentKeyFrame.Records)
+            // Line
+            {
+                var FirstKeyFrame = (KeyFrame)Track.KeyFrames[VisibleFirstIndex]!;
+                var FirstTime = FirstKeyFrame.DateTime;
+                var HeadRecord = (PropertyRecord)FirstKeyFrame.Records.Last()!;
+
+                var PathFigure = new PathFigure()
                 {
-                    var X1 = Timeline.GetHorizontalByTime(LastTime, Offset);
-                    var X2 = Timeline.GetHorizontalByTime(CurrentKeyFrame.DateTime, Offset);
-                    var Y1 = GetVerticalByValue(LastRecord.Value);
-                    var Y2 = GetVerticalByValue(CurrentRecord.Value);
-                    PART_Canvas.Children.Add(
-                        new Line()
+                    StartPoint = new Point()
+                    {
+                        X = Timeline.GetHorizontalByTime(FirstTime, Offset),
+                        Y = GetVerticalByValue(HeadRecord.Value),
+                    }
+                };
+
+                for (int Index = VisibleFirstIndex; Index < VisibleLastIndex; Index++)
+                {
+                    var PreviousKeyFrame = (KeyFrame)Track.KeyFrames[Index]!;
+                    var LastTime = PreviousKeyFrame.DateTime;
+                    var LastRecord = (PropertyRecord)PreviousKeyFrame.Records.Last()!;
+                    var CurrentKeyFrame = (KeyFrame)Track.KeyFrames[Index + 1]!;
+
+                    bool Finished = false;
+                    foreach (PropertyRecord CurrentRecord in CurrentKeyFrame.Records)
+                    {
+                        var X2 = Timeline.GetHorizontalByTime(CurrentKeyFrame.DateTime, Offset);
+                        var Y2 = GetVerticalByValue(CurrentRecord.Value);
+
+                        if (UsePathGeometry)
                         {
-                            X1 = X1,
-                            Y1 = Y1,
-                            X2 = X2,
-                            Y2 = Y2,
-                            Stroke = new SolidColorBrush(Colors.Gray),
-                            StrokeThickness = 2,
+                            PathFigure.Segments.Add(new LineSegment(new Point(X2, Y2), true));
                         }
-                    );
-                    LastTime = CurrentKeyFrame.DateTime;
-                    LastRecord = CurrentRecord;
-                    Finished |= X2 > this.PART_Canvas.ActualWidth;
+                        else
+                        {
+                            var X1 = Timeline.GetHorizontalByTime(LastTime, Offset);
+                            var Y1 = GetVerticalByValue(LastRecord.Value);
+                            PART_Canvas.Children.Add(
+                                new Line()
+                                {
+                                    X1 = X1,
+                                    Y1 = Y1,
+                                    X2 = X2,
+                                    Y2 = Y2,
+                                    Stroke = new SolidColorBrush(Colors.Gray),
+                                    StrokeThickness = 2,
+                                }
+                            );
+                        }
+
+                        LastTime = CurrentKeyFrame.DateTime;
+                        LastRecord = CurrentRecord;
+                        Finished |= X2 > this.PART_Canvas.ActualWidth;
+                    }
+                    if (Finished)
+                    {
+                        VisibleLastIndex = Index + 1;
+                        break;
+                    }
                 }
-                if (Finished)
+                if (UsePathGeometry)
                 {
-                    VisibleLastIndex = Index + 1;
-                    break;
+                    var PathGeometry = new PathGeometry();
+                    PathGeometry.Figures.Add(PathFigure);
+                    var Path = new Path()
+                    {
+                        Data = PathGeometry,
+                        Stroke = new SolidColorBrush(Colors.Gray),
+                        StrokeThickness = 2,
+                    };
+                    PART_Canvas.Children.Add(Path);
                 }
             }
-            VisibleLastIndex = Math.Max(VisibleLastIndex, VisibleFirstIndex);
-            for (int Index = VisibleFirstIndex; Index <= VisibleLastIndex; Index++)
+
+            // Circle
             {
-                var CurrentKeyFrame = (KeyFrame)Track.KeyFrames[Index]!;
-                foreach (var CurrentRecord in CurrentKeyFrame.Records)
+                var GeometryGroup = UseEllipseGeometry ? new GeometryGroup() : null;
+                int ButtonCacheIndex = 0;
+
+                VisibleLastIndex = Math.Max(VisibleLastIndex, VisibleFirstIndex);
+                for (int Index = VisibleFirstIndex; Index <= VisibleLastIndex; Index++)
                 {
-                    var X = Timeline.GetHorizontalByTime(CurrentKeyFrame.DateTime, Offset);
-                    var Y = GetVerticalByValue(CurrentRecord.Value);
-                    var Button = new Button()
+                    var CurrentKeyFrame = (KeyFrame)Track.KeyFrames[Index]!;
+                    foreach (var CurrentRecord in CurrentKeyFrame.Records)
                     {
-                        Style = RecordMarkButtonStyle,
-                        DataContext = CurrentRecord,
-                    };
-                    if (RecordMarkButtonStyle != null)
-                    {
-                        Button.Style = RecordMarkButtonStyle;
+                        var X = Timeline.GetHorizontalByTime(CurrentKeyFrame.DateTime, Offset);
+                        var Y = GetVerticalByValue(CurrentRecord.Value);
+                        if (UseEllipseGeometry)
+                        {
+                            GeometryGroup!.Children.Add(new EllipseGeometry(new Point(X, Y), 4, 4));
+                        }
+                        else
+                        {
+                            Button? Button = null;
+                            if (ButtonCacheIndex >= ButtonCache.Count)
+                            {
+                                Debug.Assert(ButtonCacheIndex == ButtonCache.Count);
+                                Button = new Button()
+                                {
+                                    Style = RecordMarkButtonStyle,
+                                    DataContext = CurrentRecord,
+                                };
+                                ButtonCache.Add(Button);
+                                PART_ButtonCacheCanvas.Children.Add(Button);
+                            }
+                            else
+                            {
+                                Button = ButtonCache[ButtonCacheIndex];
+                                Button.DataContext = CurrentRecord;
+                            }
+                            ButtonCacheIndex++;
+                            Button.RenderTransform = new TranslateTransform
+                            {
+                                X = X - Button.Width * 0.5,
+                                Y = Y - Button.Height * 0.5,
+                            };
+                        }
                     }
-                    PART_Canvas.Children.Add(Button);
-                    Canvas.SetLeft(Button, X - Button.Width * 0.5);
-                    Canvas.SetTop(Button, Y - Button.Height * 0.5);
+                }
+                for (int Index = ButtonCacheIndex; Index < ButtonCache.Count; Index++)
+                {
+                    var Button = ButtonCache[Index];
+                    Button.RenderTransform = new TranslateTransform
+                    {
+                        X = -Button.Width,
+                        Y = -Button.Height,
+                    };
+                }
+                if (UseEllipseGeometry)
+                {
+                    var Path = new Path
+                    {
+                        Data = GeometryGroup,
+                        Fill = Brushes.LightGray,
+                        Stroke = Brushes.Gray,
+                        StrokeThickness = 2,
+                    };
+                    PART_Canvas.Children.Add(Path);
                 }
             }
         }
