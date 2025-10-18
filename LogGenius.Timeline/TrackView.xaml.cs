@@ -234,7 +234,7 @@ namespace LogGenius.Modules.Timeline
                     UpdateCurvesInternal();
                     this.UpdateCurvesWaitingTimer = null;
                 });
-            }, null, TimelineModule.Instance.CurveUpdateInterval, 0);
+            }, null, TimelineModule.Instance.UpdateInterval, 0);
         }
 
         private List<Button> ButtonCache = new();

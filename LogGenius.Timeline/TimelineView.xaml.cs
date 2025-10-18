@@ -160,7 +160,25 @@ namespace LogGenius.Modules.Timeline
             }
         }
 
+        private Timer? UpdateRulerWaitingTimer = null;
+
         protected void UpdateRuler()
+        {
+            if (UpdateRulerWaitingTimer != null)
+            {
+                return;
+            }
+            UpdateRulerWaitingTimer = new Timer(_ =>
+            {
+                Application.Current.Dispatcher.InvokeAsync(() =>
+                {
+                    UpdateRulerInternal();
+                    this.UpdateRulerWaitingTimer = null;
+                });
+            }, null, TimelineModule.Instance.UpdateInterval, 0);
+        }
+
+        protected void UpdateRulerInternal()
         {
             this.PART_Ruler.Children.Clear();
             if (!Timeline.HasInitialTime)

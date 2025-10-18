@@ -49,7 +49,7 @@ namespace LogGenius.Modules.Timeline
 
         [ObservableProperty]
         [Setting]
-        int _CurveUpdateInterval = 50;
+        int _UpdateInterval = 50;
 
         [ObservableProperty]
         [Setting]
