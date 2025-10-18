@@ -86,10 +86,12 @@ namespace LogGenius.Modules.Timeline
                 if (EventArgs.OldValue is Timeline OldTimeline)
                 {
                     OldTimeline.PropertyChanged -= TimelineView.OnTimelinePropertyChanged;
+                    OldTimeline.RecordAdded -= TimelineView.OnTrackRecordAdded;
                 }
                 if (EventArgs.NewValue is Timeline NewTimeline)
                 {
                     NewTimeline.PropertyChanged += TimelineView.OnTimelinePropertyChanged;
+                    NewTimeline.RecordAdded -= TimelineView.OnTrackRecordAdded;
                 }
             }
         }
@@ -149,21 +151,34 @@ namespace LogGenius.Modules.Timeline
             if (Timeline != null)
             {
                 Timeline.PropertyChanged -= OnTimelinePropertyChanged;
+                Timeline.RecordAdded -= OnTrackRecordAdded;
             }
+        }
+
+        protected void OnTrackRecordAdded(PropertyRecord Record)
+        {
+            UpdateRuler(true);
         }
 
         private void OnTimelinePropertyChanged(object? Sender, System.ComponentModel.PropertyChangedEventArgs EventArgs)
         {
             if (EventArgs.PropertyName == nameof(Timeline.MillisecondPerPixel))
             {
-                UpdateRuler();
+                UpdateRuler(false);
             }
         }
 
         private Timer? UpdateRulerWaitingTimer = null;
 
-        protected void UpdateRuler()
+        protected void UpdateRuler(bool Async)
         {
+            if (!Async)
+            {
+                UpdateRulerInternal();
+                UpdateRulerWaitingTimer?.Dispose();
+                UpdateRulerWaitingTimer = null;
+                return;
+            }
             if (UpdateRulerWaitingTimer != null)
             {
                 return;
@@ -240,21 +255,13 @@ namespace LogGenius.Modules.Timeline
             {
                 return;
             }
-            foreach (var Track in this.Timeline.Tracks)
-            {
-                if (PART_ListView.ItemContainerGenerator.ContainerFromItem(Track) is ListViewItem ListViewItem)
-                {
-                    var TrackView = ModernWpf.VisualTree.FindDescendant<TrackView>(ListViewItem);
-                    TrackView.Invalidate();
-                }
-            }
-            UpdateRuler();
+            UpdateRuler(false);
         }
 
         protected override void OnRenderSizeChanged(SizeChangedInfo SizeInfo)
         {
             base.OnRenderSizeChanged(SizeInfo);
-            UpdateRuler();
+            UpdateRuler(true);
         }
 
         private void OnListViewSelectionChanged(object Sender, SelectionChangedEventArgs EventArgs)

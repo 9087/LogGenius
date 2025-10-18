@@ -41,7 +41,7 @@ namespace LogGenius.Modules.Timeline
         {
             if (EventArgs.PropertyName == nameof(Timeline.MillisecondPerPixel))
             {
-                UpdateCurves();
+                UpdateCurves(false);
             }
         }
 
@@ -66,7 +66,7 @@ namespace LogGenius.Modules.Timeline
                 {
                     OldTrack.RecordAdded -= TrackView.OnTrackRecordAdded;
                 }
-                TrackView.UpdateCurves();
+                TrackView.UpdateCurves(false);
                 if (EventArgs.NewValue is Track NewTrack)
                 {
                     NewTrack.RecordAdded += TrackView.OnTrackRecordAdded;
@@ -91,7 +91,7 @@ namespace LogGenius.Modules.Timeline
         {
             if (Object is TrackView TrackView)
             {
-                TrackView.UpdateCurves();
+                TrackView.UpdateCurves(false);
             }
         }
 
@@ -179,18 +179,13 @@ namespace LogGenius.Modules.Timeline
 
         protected void OnTrackRecordAdded(PropertyRecord Record)
         {
-            UpdateCurves();
+            UpdateCurves(true);
         }
 
         protected override void OnRenderSizeChanged(SizeChangedInfo SizeInfo)
         {
             base.OnRenderSizeChanged(SizeInfo);
-            UpdateCurves();
-        }
-
-        public void Invalidate()
-        {
-            UpdateCurves();
+            UpdateCurves(true);
         }
 
         private int FindEarliestKeyFrameIndexAfterTime(DateTime Time, int StartIndex, int EndIndex)
@@ -221,8 +216,15 @@ namespace LogGenius.Modules.Timeline
 
         private Timer? UpdateCurvesWaitingTimer = null;
         
-        private void UpdateCurves()
+        private void UpdateCurves(bool Async)
         {
+            if (!Async)
+            {
+                UpdateCurvesInternal();
+                UpdateCurvesWaitingTimer?.Dispose();
+                UpdateCurvesWaitingTimer = null;
+                return;
+            }
             if (UpdateCurvesWaitingTimer != null)
             {
                 return;

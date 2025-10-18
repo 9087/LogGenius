@@ -41,6 +41,8 @@ namespace LogGenius.Modules.Timeline
 
         public int RulerCountPerTimeTextBlock => TimelineModule.Instance.TimelineScaleChoices[MillisecondPerPixelIndex - 1].RulerCountPerTimeTextBlock;
 
+        public Action<PropertyRecord>? RecordAdded { get; set; }
+
         public PropertyIdentity? FindIdentity(string Name)
         {
             return Identities.FirstOrDefault(X => X.Name == Name);
@@ -74,6 +76,7 @@ namespace LogGenius.Modules.Timeline
             }
             Record.Identity.UpdateBound(Record);
             this.TrackLookupTable[Record.Identity].AddRecord(DateTime, Record);
+            this.RecordAdded?.Invoke(Record);
         }
 
         public void UpdateTime(DateTime Time)
