@@ -274,10 +274,10 @@ namespace LogGenius.Modules.Timeline
             int VisibleFirstIndex = Math.Max(0, EarliestKeyFrameIndex - 1);
             int VisibleLastIndex = Track.KeyFrames.Count - 1;
 
-            bool UsePathGeometry = true;
-            bool UseEllipseGeometry = false;
+            bool UsePathElementForLineChart = TimelineModule.Instance.UsePathElementForLineChart;
+            bool UsePathElementForRecordPoint = TimelineModule.Instance.UsePathElementForRecordPoint;
 
-            // Line
+            // Line Chart
             {
                 var FirstKeyFrame = (KeyFrame)Track.KeyFrames[VisibleFirstIndex]!;
                 var FirstTime = FirstKeyFrame.DateTime;
@@ -289,7 +289,7 @@ namespace LogGenius.Modules.Timeline
                     {
                         X = Timeline.GetHorizontalByTime(FirstTime, Offset),
                         Y = GetVerticalByValue(HeadRecord.Value),
-                    }
+                    },
                 };
 
                 for (int Index = VisibleFirstIndex; Index < VisibleLastIndex; Index++)
@@ -305,7 +305,7 @@ namespace LogGenius.Modules.Timeline
                         var X2 = Timeline.GetHorizontalByTime(CurrentKeyFrame.DateTime, Offset);
                         var Y2 = GetVerticalByValue(CurrentRecord.Value);
 
-                        if (UsePathGeometry)
+                        if (UsePathElementForLineChart)
                         {
                             PathFigure.Segments.Add(new LineSegment(new Point(X2, Y2), true));
                         }
@@ -336,7 +336,7 @@ namespace LogGenius.Modules.Timeline
                         break;
                     }
                 }
-                if (UsePathGeometry)
+                if (UsePathElementForLineChart)
                 {
                     var PathGeometry = new PathGeometry();
                     PathGeometry.Figures.Add(PathFigure);
@@ -345,14 +345,15 @@ namespace LogGenius.Modules.Timeline
                         Data = PathGeometry,
                         Stroke = new SolidColorBrush(Colors.Gray),
                         StrokeThickness = 2,
+                        StrokeLineJoin = PenLineJoin.Round,
                     };
                     PART_Canvas.Children.Add(Path);
                 }
             }
 
-            // Circle
+            // Record Point
             {
-                var GeometryGroup = UseEllipseGeometry ? new GeometryGroup() : null;
+                var GeometryGroup = UsePathElementForRecordPoint ? new GeometryGroup() : null;
                 int ButtonCacheIndex = 0;
 
                 VisibleLastIndex = Math.Max(VisibleLastIndex, VisibleFirstIndex);
@@ -363,7 +364,7 @@ namespace LogGenius.Modules.Timeline
                     {
                         var X = Timeline.GetHorizontalByTime(CurrentKeyFrame.DateTime, Offset);
                         var Y = GetVerticalByValue(CurrentRecord.Value);
-                        if (UseEllipseGeometry)
+                        if (UsePathElementForRecordPoint)
                         {
                             GeometryGroup!.Children.Add(new EllipseGeometry(new Point(X, Y), 4, 4));
                         }
@@ -404,7 +405,7 @@ namespace LogGenius.Modules.Timeline
                         Y = -Button.Height,
                     };
                 }
-                if (UseEllipseGeometry)
+                if (UsePathElementForRecordPoint)
                 {
                     var Path = new Path
                     {

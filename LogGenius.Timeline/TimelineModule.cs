@@ -51,6 +51,14 @@ namespace LogGenius.Modules.Timeline
         [Setting]
         int _CurveUpdateInterval = 50;
 
+        [ObservableProperty]
+        [Setting]
+        bool _UsePathElementForLineChart = true;
+
+        [ObservableProperty]
+        [Setting]
+        bool _UsePathElementForRecordPoint = false;
+
         public TimelineModule(Session Session) : base(Session)
         {
             Session.EntriesAdded += OnEntriesAdded;
