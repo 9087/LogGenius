@@ -1,6 +1,8 @@
-﻿using System.Globalization;
+﻿using System.ComponentModel;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -144,6 +146,9 @@ namespace LogGenius.Modules.Timeline
         public TimelineView()
         {
             InitializeComponent();
+            var Descriptor = DependencyPropertyDescriptor.FromProperty(
+                ScrollBar.MaximumProperty, typeof(ScrollBar));
+            Descriptor.AddValueChanged(PART_ScrollBar, OnScrollBarMaximumChanged);
         }
 
         ~TimelineView()
@@ -153,6 +158,9 @@ namespace LogGenius.Modules.Timeline
                 Timeline.PropertyChanged -= OnTimelinePropertyChanged;
                 Timeline.RecordAdded -= OnTrackRecordAdded;
             }
+            var Descriptor = DependencyPropertyDescriptor.FromProperty(
+                ScrollBar.MaximumProperty, typeof(ScrollBar));
+            Descriptor.AddValueChanged(PART_ScrollBar, OnScrollBarMaximumChanged);
         }
 
         protected void OnTrackRecordAdded(PropertyRecord Record)
@@ -251,6 +259,7 @@ namespace LogGenius.Modules.Timeline
 
         private void OnScrollBarValueChanged(object Sender, RoutedPropertyChangedEventArgs<double> EventArgs)
         {
+            KeepScrollingToEnd = EventArgs.NewValue == PART_ScrollBar.Maximum;
             if (this.Timeline == null)
             {
                 return;
@@ -295,6 +304,16 @@ namespace LogGenius.Modules.Timeline
         {
             PART_ScrollBar.Value += -PART_ScrollBar.SmallChange * EventArgs.Delta;
             base.OnMouseWheel(EventArgs);
+        }
+
+        private bool KeepScrollingToEnd = true;
+
+        private void OnScrollBarMaximumChanged(object? Sender, EventArgs EventArgs)
+        {
+            if (KeepScrollingToEnd)
+            {
+                PART_ScrollBar.Value = PART_ScrollBar.Maximum;
+            }
         }
     }
 }
