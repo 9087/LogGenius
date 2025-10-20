@@ -52,6 +52,13 @@ jobs:
         echo "current_short_time=$current_short_time" >> $env:GITHUB_OUTPUT
       shell: pwsh
 
+    - name: Delete tag and release
+      uses: dev-drprasad/delete-tag-and-release@v1.1
+      with:
+        tag_name: latest
+        delete_release: true
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Create or update Release
       id: create_or_update_release
       uses: GongT/actions-recreate-release@v1
