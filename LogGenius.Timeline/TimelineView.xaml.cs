@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using LogGenius.Core;
+using System.ComponentModel;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
@@ -149,6 +150,8 @@ namespace LogGenius.Modules.Timeline
             var Descriptor = DependencyPropertyDescriptor.FromProperty(
                 ScrollBar.MaximumProperty, typeof(ScrollBar));
             Descriptor.AddValueChanged(PART_ScrollBar, OnScrollBarMaximumChanged);
+
+            UpdateRulerDebouncer = Debouncer.Create(() => { UpdateRulerInternal(); });
         }
 
         ~TimelineView()
@@ -176,29 +179,18 @@ namespace LogGenius.Modules.Timeline
             }
         }
 
-        private Timer? UpdateRulerWaitingTimer = null;
+        private Debouncer UpdateRulerDebouncer;
 
         protected void UpdateRuler(bool Async)
         {
-            if (!Async)
+            if (Async)
             {
-                UpdateRulerInternal();
-                UpdateRulerWaitingTimer?.Dispose();
-                UpdateRulerWaitingTimer = null;
-                return;
+                UpdateRulerDebouncer.Schedule();
             }
-            if (UpdateRulerWaitingTimer != null)
+            else
             {
-                return;
+                UpdateRulerDebouncer.ExecuteImmediately();
             }
-            UpdateRulerWaitingTimer = new Timer(_ =>
-            {
-                Application.Current.Dispatcher.InvokeAsync(() =>
-                {
-                    UpdateRulerInternal();
-                    this.UpdateRulerWaitingTimer = null;
-                });
-            }, null, TimelineModule.Instance.UpdateInterval, 0);
         }
 
         protected void UpdateRulerInternal()

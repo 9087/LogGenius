@@ -49,10 +49,6 @@ namespace LogGenius.Modules.Timeline
 
         [ObservableProperty]
         [Setting]
-        int _UpdateInterval = 50;
-
-        [ObservableProperty]
-        [Setting]
         bool _UsePathElementForLineChart = true;
 
         [ObservableProperty]

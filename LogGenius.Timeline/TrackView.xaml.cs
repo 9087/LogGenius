@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using LogGenius.Core;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Ink;
@@ -161,6 +162,8 @@ namespace LogGenius.Modules.Timeline
         {
             InitializeComponent();
             RecordMarkButtonStyle = TryFindResource("RecordMarkButtonStyle") as Style;
+
+            UpdateCurvesDebouncer = Debouncer.Create(() => { UpdateCurvesInternal(); });
         }
 
         ~TrackView()
@@ -214,29 +217,18 @@ namespace LogGenius.Modules.Timeline
             return FindEarliestKeyFrameIndexAfterTime(Time, 0, Track.KeyFrames.Count - 1);
         }
 
-        private Timer? UpdateCurvesWaitingTimer = null;
-        
+        private Debouncer UpdateCurvesDebouncer;
+
         private void UpdateCurves(bool Async)
         {
-            if (!Async)
+            if (Async)
             {
-                UpdateCurvesInternal();
-                UpdateCurvesWaitingTimer?.Dispose();
-                UpdateCurvesWaitingTimer = null;
-                return;
+                UpdateCurvesDebouncer.Schedule();
             }
-            if (UpdateCurvesWaitingTimer != null)
+            else
             {
-                return;
+                UpdateCurvesDebouncer.ExecuteImmediately();
             }
-            UpdateCurvesWaitingTimer = new Timer(_ =>
-            {
-                Application.Current.Dispatcher.InvokeAsync(() =>
-                {
-                    UpdateCurvesInternal();
-                    this.UpdateCurvesWaitingTimer = null;
-                });
-            }, null, TimelineModule.Instance.UpdateInterval, 0);
         }
 
         private List<Button> ButtonCache = new();

@@ -278,9 +278,9 @@ namespace LogGenius.Core
                 }
                 IsDebugEntriesRequested = false;
             }
-            int FrameRate = 5;
+            int FrameRate = 60;
             int Seconds = 20;
-            int EntryCountPerOneFrame = 60;
+            int EntryCountPerOneFrame = 10;
             for (int FrameIndex = 0; FrameIndex < FrameRate * Seconds; FrameIndex++)
             {
                 List<Entry> Entries = new();
@@ -290,7 +290,7 @@ namespace LogGenius.Core
                     Entries.Add(new Entry(Text));
                 }
                 PushBackEntries(Entries);
-                await Task.Delay(Interval);
+                await Task.Delay(1000 / FrameRate);
             }
         }
     }
