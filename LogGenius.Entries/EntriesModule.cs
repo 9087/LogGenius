@@ -1,10 +1,14 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LogGenius.Core;
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Threading;
 
@@ -241,6 +245,39 @@ namespace LogGenius.Modules.Entries
             var Temporay = FilterPatternSuggestions.ToList();
             Temporay.Remove(FilterPattern);
             FilterPatternSuggestions = new(Temporay);
+        }
+
+        [RelayCommand]
+        void CopyEntries(object PlacementTarget)
+        {
+            switch (PlacementTarget)
+            {
+                case DataGridRow DataGridRow:
+                    var DataGrid = ModernWpf.VisualTree.FindAscendant<DataGrid>(DataGridRow);
+                    var StringBuilder = new StringBuilder();
+                    var SelectedItems = new List<Entry>();
+                    foreach (Entry SelectedItem in DataGrid.SelectedItems)
+                    {
+                        SelectedItems.Add(SelectedItem);
+                    }
+                    var Comparison = new Comparison<Entry>((Entry A, Entry B) => A.Line.CompareTo(B.Line));
+                    SelectedItems.Sort(Comparison);
+                    foreach (Entry SelectedItem in SelectedItems)
+                    {
+                        if (SelectedItem is Entry Entry)
+                        {
+                            if (StringBuilder.Length != 0)
+                            {
+                                StringBuilder.Append(Environment.NewLine);
+                            }
+                            StringBuilder.Append(Entry.Text);
+                        }
+                    }
+                    Clipboard.SetText(StringBuilder.ToString());
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
         }
 
         [ObservableProperty]

@@ -1,12 +1,39 @@
 ﻿using LogGenius.Core;
 using Serilog;
+using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Automation.Peers;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Threading;
 
 namespace LogGenius.Modules.Entries
 {
+    public class GetExcludeContextMenuItemVisibility : IMultiValueConverter
+    {
+        public object Convert(object[] Values, Type TargetType, object Parameter, CultureInfo Culture)
+        {
+            if (Values.Length >= 1)
+            {
+                if (Values[0] is DataGridRow DataGridRow)
+                {
+                    var DataGrid = ModernWpf.VisualTree.FindAscendant<DataGrid>(DataGridRow);
+                    if (DataGrid.SelectedItems.Count <= 1)
+                    {
+                        return Visibility.Visible;
+                    }
+                }
+            }
+            return Visibility.Collapsed;
+        }
+
+        public object[] ConvertBack(object Value, Type[] TargetTypes, object Parameter, CultureInfo Culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public class EntryDoubleClickedEventArgs : EventArgs
     {
         public Entry Item { get; }
@@ -84,6 +111,8 @@ namespace LogGenius.Modules.Entries
 
         #endregion
 
+        #region SelectableStateEnabled
+
         public static readonly DependencyProperty SelectableStateEnabledProperty =
             DependencyProperty.Register(
                 nameof(SelectableStateEnabled),
@@ -96,6 +125,8 @@ namespace LogGenius.Modules.Entries
             get => (bool)GetValue(SelectableStateEnabledProperty);
             set => SetValue(SelectableStateEnabledProperty, value);
         }
+
+        #endregion
 
         public event EntryDoubleClickedEventHandler? EntryDoubleClicked;
 

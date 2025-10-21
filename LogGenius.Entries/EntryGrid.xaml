@@ -14,8 +14,30 @@
   <UserControl.Resources>
     <LogGenius.Modules.Entries:GetEntryStyleForegroundFromEntry x:Key="GetEntryStyleForegroundFromEntry"/>
     <LogGenius.Modules.Entries:GetEntryStyleBackgroundFromEntry x:Key="GetEntryStyleBackgroundFromEntry"/>
+    <LogGenius.Modules.Entries:GetExcludeContextMenuItemVisibility x:Key="GetExcludeContextMenuItemVisibility"/>
     <ContextMenu x:Key="ItemContextMenu">
-      <MenuItem Header="Exclude">
+      <MenuItem Header="Copy">
+        <i:Interaction.Triggers>
+          <i:EventTrigger EventName="Click">
+            <i:InvokeCommandAction
+              Command="{Binding CopyEntriesCommand, Source={x:Static LogGenius.Modules.Entries:EntriesModule.Instance}}"
+              CommandParameter="{Binding PlacementTarget, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+              />
+          </i:EventTrigger>
+        </i:Interaction.Triggers>
+      </MenuItem>
+      <MenuItem
+        Header="Exclude"
+        >
+        <MenuItem.Visibility>
+          <MultiBinding Converter="{StaticResource GetExcludeContextMenuItemVisibility}">
+            <Binding Path="PlacementTarget">
+              <Binding.RelativeSource>
+                <RelativeSource AncestorType="ContextMenu"/>
+              </Binding.RelativeSource>
+            </Binding>
+          </MultiBinding>
+        </MenuItem.Visibility>
         <MenuItem
           Header="Before This"
           >
