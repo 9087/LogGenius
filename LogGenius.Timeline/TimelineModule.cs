@@ -78,12 +78,13 @@ namespace LogGenius.Modules.Timeline
                 {
                     continue;
                 }
-                Timeline.UpdateTime(HeaderInfo.DateTime);
+                Timeline.UpdateCurrentTime(HeaderInfo.DateTime);
                 var RecordLookups = Entry.GetTimelineRecords();
                 if (RecordLookups == null || RecordLookups.Count == 0)
                 {
                     continue;
                 }
+                Timeline.UpdateInitialTime(HeaderInfo.DateTime);
                 foreach (var (Name, Records) in RecordLookups)
                 {
                     foreach (var Record in Records)

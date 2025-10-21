@@ -79,13 +79,17 @@ namespace LogGenius.Modules.Timeline
             this.RecordAdded?.Invoke(Record);
         }
 
-        public void UpdateTime(DateTime Time)
+        public void UpdateCurrentTime(DateTime Time)
+        {
+            CurrentTime = Time;
+        }
+
+        public void UpdateInitialTime(DateTime Time)
         {
             if (InitialTime == null)
             {
                 InitialTime = Time;
             }
-            CurrentTime = Time;
         }
 
         public double GetHorizontalByMillisecond(double Millisecond, double Offset)
