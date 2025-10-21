@@ -226,7 +226,9 @@ namespace LogGenius.Modules.Timeline
                     
                     if (Current % Timeline.RulerCountPerTimeTextBlock == 0)
                     {
-                        var TimeSpan = new TimeSpan(0, 0, 0, 0, (int)Millisecond);
+                        int Day = (int)(Millisecond / 1000 / 60 / 60 / 24);
+                        Millisecond -= Day * 1000 * 60 * 60 * 24;
+                        var TimeSpan = new TimeSpan(Day, 0, 0, 0, (int)Millisecond);
                         var TimeTextBlock = new TextBlock()
                         {
                             Text = $"{(int)TimeSpan.TotalMinutes}.{TimeSpan.Seconds:D2}:{TimeSpan.Milliseconds:D3}",
