@@ -20,7 +20,7 @@
         <i:Interaction.Triggers>
           <i:EventTrigger EventName="Click">
             <i:InvokeCommandAction
-              Command="{Binding CopyEntriesCommand, Source={x:Static LogGenius.Modules.Entries:EntriesModule.Instance}}"
+              Command="{Binding CopyEntriesByDataGridRowCommand, Source={x:Static LogGenius.Modules.Entries:EntriesModule.Instance}}"
               CommandParameter="{Binding PlacementTarget, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
               />
           </i:EventTrigger>
@@ -92,6 +92,13 @@
     CanUserResizeRows="false"
     ScrollViewer.ScrollChanged="OnDataGridScrollChanged"
     >
+    <DataGrid.InputBindings>
+      <KeyBinding
+        Gesture="Ctrl+C"
+        Command="{Binding CopyEntriesByDataGridCommand, Source={x:Static LogGenius.Modules.Entries:EntriesModule.Instance}}"
+        CommandParameter="{Binding ElementName=PART_DataGrid}"
+        />
+    </DataGrid.InputBindings>
     <DataGrid.RowStyle>
       <Style TargetType="DataGridRow" BasedOn="{StaticResource DefaultDataGridRowStyle}">
         <Setter Property="Header" Value="{Binding Line}"/>

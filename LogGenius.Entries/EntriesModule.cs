@@ -248,36 +248,35 @@ namespace LogGenius.Modules.Entries
         }
 
         [RelayCommand]
-        void CopyEntries(object PlacementTarget)
+        void CopyEntriesByDataGrid(DataGrid DataGrid)
         {
-            switch (PlacementTarget)
+            var StringBuilder = new StringBuilder();
+            var SelectedItems = new List<Entry>();
+            foreach (Entry SelectedItem in DataGrid.SelectedItems)
             {
-                case DataGridRow DataGridRow:
-                    var DataGrid = ModernWpf.VisualTree.FindAscendant<DataGrid>(DataGridRow);
-                    var StringBuilder = new StringBuilder();
-                    var SelectedItems = new List<Entry>();
-                    foreach (Entry SelectedItem in DataGrid.SelectedItems)
-                    {
-                        SelectedItems.Add(SelectedItem);
-                    }
-                    var Comparison = new Comparison<Entry>((Entry A, Entry B) => A.Line.CompareTo(B.Line));
-                    SelectedItems.Sort(Comparison);
-                    foreach (Entry SelectedItem in SelectedItems)
-                    {
-                        if (SelectedItem is Entry Entry)
-                        {
-                            if (StringBuilder.Length != 0)
-                            {
-                                StringBuilder.Append(Environment.NewLine);
-                            }
-                            StringBuilder.Append(Entry.Text);
-                        }
-                    }
-                    Clipboard.SetText(StringBuilder.ToString());
-                    break;
-                default:
-                    throw new NotImplementedException();
+                SelectedItems.Add(SelectedItem);
             }
+            var Comparison = new Comparison<Entry>((Entry A, Entry B) => A.Line.CompareTo(B.Line));
+            SelectedItems.Sort(Comparison);
+            foreach (Entry SelectedItem in SelectedItems)
+            {
+                if (SelectedItem is Entry Entry)
+                {
+                    if (StringBuilder.Length != 0)
+                    {
+                        StringBuilder.Append(Environment.NewLine);
+                    }
+                    StringBuilder.Append(Entry.Text);
+                }
+            }
+            Clipboard.SetText(StringBuilder.ToString());
+        }
+
+        [RelayCommand]
+        void CopyEntriesByDataGridRow(DataGridRow DataGridRow)
+        {
+            var DataGrid = ModernWpf.VisualTree.FindAscendant<DataGrid>(DataGridRow);
+            CopyEntriesByDataGrid(DataGrid);
         }
 
         [ObservableProperty]
