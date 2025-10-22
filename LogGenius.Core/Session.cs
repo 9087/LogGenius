@@ -208,7 +208,7 @@ namespace LogGenius.Core
             {
                 EntryCreated?.Invoke(Entry);
             }
-            _ = Application.Current.Dispatcher.InvokeAsync(() => PushBackEntriesInMainThread(Entries));
+            _ = Application.Current?.Dispatcher.InvokeAsync(() => PushBackEntriesInMainThread(Entries));
         }
 
         private void PopBackEntry()
@@ -218,7 +218,7 @@ namespace LogGenius.Core
 
         private void ClearEntries()
         {
-            _ = Application.Current.Dispatcher.InvokeAsync(() => ClearEntriesInMainThread());
+            _ = Application.Current?.Dispatcher.InvokeAsync(() => ClearEntriesInMainThread());
         }
 
         private async void Update(CancellationToken UpdatingTaskCancellationToken)
