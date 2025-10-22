@@ -62,11 +62,11 @@
           </i:Interaction.Triggers>
         </MenuItem>
         <MenuItem
-          Header="Exiting">
+          Header="Existing">
           <i:Interaction.Triggers>
             <i:EventTrigger EventName="Click">
               <i:InvokeCommandAction
-                Command="{Binding ExcludeExistingCommand, Source={x:Static LogGenius.Modules.Entries:EntriesModule.Instance}}"
+                Command="{Binding ReexcludeExistingCommand, Source={x:Static LogGenius.Modules.Entries:EntriesModule.Instance}}"
                 />
             </i:EventTrigger>
           </i:Interaction.Triggers>

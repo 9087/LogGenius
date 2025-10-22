@@ -298,7 +298,7 @@ namespace LogGenius.Modules.Entries
         [RelayCommand]
         public void ReexcludeExisting()
         {
-            ExcludingIndex = Session.Entries.Count - 1;
+            ExcludingIndex = Session.Entries.Count;
             FilteredEntriesViewSource.View.Refresh();
         }
 
@@ -312,7 +312,7 @@ namespace LogGenius.Modules.Entries
         [RelayCommand]
         public void ExcludeBeforeEntry(Entry Entry)
         {
-            if (Entry.Line == 0)
+            if (Entry.Line <= 1)
             {
                 CancelExcluding();
                 return;

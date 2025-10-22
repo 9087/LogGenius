@@ -178,7 +178,7 @@ namespace LogGenius.Core
             {
                 for (int I = 0; I < Entries.Count; I++)
                 {
-                    Entries[I].Line = (uint)this.Entries.Count;
+                    Entries[I].Line = (uint)this.Entries.Count + 1;
                     this.Entries.Add(Entries[I]);
                 }
             }
