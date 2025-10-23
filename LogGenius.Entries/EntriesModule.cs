@@ -232,7 +232,7 @@ namespace LogGenius.Modules.Entries
             var Temporay = FilterPatternSuggestions.ToList();
             Temporay.Remove(FilterPattern);
             Temporay.Insert(0, FilterPattern);
-            while (Temporay.Count > 1)
+            while (Temporay.Count > 10)
             {
                 Temporay.RemoveAt(Temporay.Count - 1);
             }
