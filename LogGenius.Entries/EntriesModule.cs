@@ -229,6 +229,10 @@ namespace LogGenius.Modules.Entries
 
         public void UpdateFilterPatternSuggestion(string FilterPattern)
         {
+            if (string.IsNullOrWhiteSpace(FilterPattern))
+            {
+                return;
+            }
             var Temporay = FilterPatternSuggestions.ToList();
             Temporay.Remove(FilterPattern);
             Temporay.Insert(0, FilterPattern);
