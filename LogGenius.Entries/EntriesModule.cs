@@ -36,6 +36,10 @@ namespace LogGenius.Modules.Entries
         [Setting]
         private ObservableCollection<EntryStyle> _EntryStyles = new();
 
+        [ObservableProperty]
+        [Setting]
+        private int _MaximumFilteringHighlightTextLength = 256;
+
         public EntriesModule(Session Session) : base(Session)
         {
             FullEntriesViewSource.Source = Session.Entries;

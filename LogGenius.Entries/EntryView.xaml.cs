@@ -144,7 +144,7 @@ namespace LogGenius.Modules.Entries
         private void UpdateHighlightText()
         {
             PART_TextBlock.Inlines.Clear();
-            if (string.IsNullOrEmpty(HighlightText))
+            if (string.IsNullOrEmpty(HighlightText) || Text.Length > EntriesModule.Instance.MaximumFilteringHighlightTextLength)
             {
                 PART_TextBlock.Inlines.Add(Text);
                 return;
