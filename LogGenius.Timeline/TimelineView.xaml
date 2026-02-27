@@ -250,7 +250,7 @@
           <TextBlock
             Grid.Row="1"
             FontSize="52"
-            Text="{}{YourProperty=0.618}"
+            Text="{}{SomeVariable=0.618}"
             MinWidth="0"
             Width="auto"
             >
