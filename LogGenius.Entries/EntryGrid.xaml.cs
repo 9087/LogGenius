@@ -196,7 +196,13 @@ namespace LogGenius.Modules.Entries
 
         private void OnDataGridScrollChanged(object Sender, ScrollChangedEventArgs EventArgs)
         {
-            IsScrolledToEnd = EventArgs.VerticalOffset + EventArgs.ViewportHeight >= EventArgs.ExtentHeight - 1;
+            // Only update IsScrolledToEnd on user-initiated scrolls.
+            // Content changes (batch Reset, item add/remove) fire ScrollChanged
+            // with non-zero ExtentHeightChange, while user scrolls always have zero.
+            if (EventArgs.ExtentHeightChange == 0)
+            {
+                IsScrolledToEnd = EventArgs.VerticalOffset + EventArgs.ViewportHeight >= EventArgs.ExtentHeight - 1;
+            }
         }
     }
 }

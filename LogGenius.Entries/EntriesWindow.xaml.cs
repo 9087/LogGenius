@@ -38,6 +38,10 @@ namespace LogGenius.Modules.Entries
         {
             InitializeComponent();
 
+            // 通知 Session 窗口激活状态，用于节流 UI 更新
+            Activated += (s, e) => Manager.Instance.Session.SetWindowActive(true);
+            Deactivated += (s, e) => Manager.Instance.Session.SetWindowActive(false);
+
             var OptionsMenuItem = new MenuItem() { Header = "Options", };
             {
                 var HighlightingMenuItem = new MenuItem();

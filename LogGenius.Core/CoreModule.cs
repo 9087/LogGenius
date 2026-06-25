@@ -35,5 +35,13 @@ namespace LogGenius.Core
         [ObservableProperty]
         [Setting]
         private int _BatchOperationThreshold = 50;
+
+        [ObservableProperty]
+        [Setting]
+        private int _FlushIntervalActive = 50;
+
+        [ObservableProperty]
+        [Setting]
+        private int _FlushIntervalInactive = 500;
     }
 }

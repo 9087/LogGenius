@@ -3,6 +3,7 @@ using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
+using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
@@ -81,8 +82,25 @@ namespace LogGenius.Core
         [ObservableProperty]
         private string? _FilePath = null;
 
+        #region Coalesce / Backpressure
+
+        private List<Entry> PendingEntries = new();
+
+        private readonly object PendingEntriesLock = new();
+
+        private bool IsFlushScheduled = false;
+
+        private DispatcherTimer? FlushTimer;
+
+        #endregion
+
         public Session()
         {
+            FlushTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(50),
+            };
+            FlushTimer.Tick += OnFlushTimerTick;
         }
 
         public Session(string FilePath)
@@ -160,6 +178,14 @@ namespace LogGenius.Core
                 this.Reader.Dispose();
                 this.Reader = null;
             }
+            // Drain pending entries and stop the flush timer
+            FlushPendingEntries();
+            FlushTimer?.Stop();
+            IsFlushScheduled = false;
+            lock (PendingEntriesLock)
+            {
+                PendingEntries.Clear();
+            }
             if (Entries.Count != 0)
             {
                 ClearEntries();
@@ -202,14 +228,108 @@ namespace LogGenius.Core
             EntriesRefreshed?.Invoke();
         }
 
+        #region Coalesce / Backpressure
+
+        /// <summary>
+        /// Enqueues entries into the pending buffer (called on background thread).
+        /// A flush timer periodically drains the buffer to the UI in bulk,
+        /// avoiding a backlog of Dispatcher.InvokeAsync operations when the
+        /// window is backgrounded for a long time.
+        /// </summary>
         private void PushBackEntries(List<Entry> Entries)
         {
+            if (Entries.Count == 0)
+            {
+                return;
+            }
+
+            // EntryCreated callbacks still run on the background thread (non-blocking to UI)
             foreach (var Entry in Entries)
             {
                 EntryCreated?.Invoke(Entry);
             }
-            _ = Application.Current?.Dispatcher.InvokeAsync(() => PushBackEntriesInMainThread(Entries));
+
+            lock (PendingEntriesLock)
+            {
+                PendingEntries.AddRange(Entries);
+            }
+
+            ScheduleFlush();
         }
+
+        /// <summary>
+        /// Called by EntriesWindow to notify whether the window is active.
+        /// Increases flush frequency when active, decreases when inactive to
+        /// reduce UI thread pressure. Immediately flushes all pending entries
+        /// when the window is re-activated.
+        /// </summary>
+        public void SetWindowActive(bool isActive)
+        {
+            if (FlushTimer != null)
+            {
+                FlushTimer.Interval = TimeSpan.FromMilliseconds(
+                    isActive ? CoreModule.Instance.FlushIntervalActive : CoreModule.Instance.FlushIntervalInactive);
+            }
+            if (isActive)
+            {
+                // Window re-activated, immediately flush all pending entries
+                FlushPendingEntries();
+            }
+        }
+
+        private void ScheduleFlush()
+        {
+            if (IsFlushScheduled)
+            {
+                return;
+            }
+            IsFlushScheduled = true;
+            if (FlushTimer != null && !FlushTimer.IsEnabled)
+            {
+                // Use the active-interval from CoreModule as the initial rate;
+                // SetWindowActive will adjust it when the window state changes.
+                FlushTimer.Interval = TimeSpan.FromMilliseconds(CoreModule.Instance.FlushIntervalActive);
+                FlushTimer.Start();
+            }
+        }
+
+        private void OnFlushTimerTick(object? sender, EventArgs e)
+        {
+            FlushPendingEntries();
+
+            lock (PendingEntriesLock)
+            {
+                if (PendingEntries.Count == 0)
+                {
+                    FlushTimer?.Stop();
+                    IsFlushScheduled = false;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Drains all pending entries as a single bulk push on the UI thread
+        /// at Background priority so rendering and input are not blocked.
+        /// </summary>
+        private void FlushPendingEntries()
+        {
+            List<Entry> entriesToPush;
+            lock (PendingEntriesLock)
+            {
+                if (PendingEntries.Count == 0)
+                {
+                    return;
+                }
+                entriesToPush = new List<Entry>(PendingEntries);
+                PendingEntries.Clear();
+            }
+
+            Application.Current?.Dispatcher.InvokeAsync(
+                () => PushBackEntriesInMainThread(entriesToPush),
+                DispatcherPriority.Background);
+        }
+
+        #endregion
 
         private void PopBackEntry()
         {
@@ -218,6 +338,13 @@ namespace LogGenius.Core
 
         private void ClearEntries()
         {
+            // Discard all pending entries so stale entries are not pushed after clear
+            lock (PendingEntriesLock)
+            {
+                PendingEntries.Clear();
+            }
+            FlushTimer?.Stop();
+            IsFlushScheduled = false;
             _ = Application.Current?.Dispatcher.InvokeAsync(() => ClearEntriesInMainThread());
         }
 
