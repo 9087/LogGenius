@@ -183,6 +183,7 @@ namespace LogGenius.Modules.Entries
 
         public void ScrollIntoView(object Item)
         {
+            IsScrolledToEnd = false;
             PART_DataGrid.ScrollIntoView(Item);
         }
 
